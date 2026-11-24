@@ -127,6 +127,13 @@ form.reg .full{grid-column:1/-1}
 .money span{padding-left:10px;color:var(--muted);font-weight:600;font-size:14px}
 .money input{border:0;background:none;padding-left:6px}
 .feerow .close{width:34px;height:34px;padding:0}
+.loc{border:1px solid var(--line);border-radius:12px;padding:10px 12px;gap:10px!important}
+.hrrow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 34px;gap:6px 8px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:8px}
+.hrrow .days{grid-column:1/3}
+.hrrow .h24{grid-column:1/-1;display:flex;gap:6px;align-items:center;font-size:13px}
+.hrrow .h24 input{width:auto}
+.hrrow input[type=time]{min-width:0}
+.hrrow .close{width:34px;height:34px;padding:0}
 div.f{display:grid;gap:4px} div.f>span:first-child{font-size:12px;color:var(--muted);font-weight:600}
 .fsec{display:grid;gap:2px;border-top:1px solid var(--line);padding-top:12px;margin-top:4px}
 .fsec.first{border-top:0;padding-top:0;margin-top:0}
@@ -308,12 +315,19 @@ div.f{display:grid;gap:4px} div.f>span:first-child{font-size:12px;color:var(--mu
         <div class="f full"><span>Fees (at least one – choose the period, then the price)</span>
           <div class="fees" id="rFees"></div>
           <button type="button" class="btn ghost" id="rAddFee" style="justify-self:start;padding:6px 12px">+ Add another fee</button></div>
+        <div class="f full loc"><span>Where is your gym? (at least one of these 3)</span>
+          <label class="f">1. GhanaPostGPS address<input id="rGps" placeholder="e.g. GA-123-4567" autocapitalize="characters" maxlength="16" pattern="[A-Za-z]{2}-?[0-9]{3,4}-?[0-9]{3,4}" title="Like GA-123-4567"></label>
+          <label class="f">2. Google Maps link<input id="rMap" type="url" inputmode="url" placeholder="e.g. https://maps.app.goo.gl/..." maxlength="200"></label>
+          <div class="f"><span>3. You are at the gym now?</span>
+            <div class="row"><button type="button" class="btn ghost" id="rHere" style="padding:7px 12px">📍 Use my location</button><small class="muted" id="rHereNote"></small></div></div>
+          <small class="muted">No GPS address yet? Use 2 or 3 – we set up your GhanaPostGPS address with you when we visit.</small>
+        </div>
         <div class="full fsec"><h3>Optional <span class="opt">add now or later</span></h3><span class="muted">Fill in what you know. We check the rest when we visit.</span></div>
         <label class="f full">How to find you (from a landmark)<input id="rLand" maxlength="140" placeholder="e.g. Opposite the Shell station, above the pharmacy, 2nd floor"></label>
-        <label class="f">GhanaPostGPS address<input id="rGps" placeholder="e.g. GA-123-4567" autocapitalize="characters" maxlength="16"></label>
-        <label class="f">Opening hours<input id="rHours" maxlength="80" placeholder="e.g. Mon–Sat 5:00–21:00"></label>
+        <div class="f full"><span>Opening hours (choose the days, then the times)</span>
+          <div class="fees" id="rHours"></div>
+          <button type="button" class="btn ghost" id="rAddHours" style="justify-self:start;padding:6px 12px">+ Add opening hours</button></div>
         <div class="f full"><span>Facilities</span><div class="chips" id="rFac"></div></div>
-        <small class="muted full">No GPS address yet? Leave it empty – we set it up with you when we visit.</small>
         <div class="full row"><button class="btn" type="submit">Send on WhatsApp</button><small class="muted">Opens WhatsApp with your details. We reply within 2 days to book the visit.</small></div>
       </form>
     </div>
@@ -765,9 +779,36 @@ const openWa=lines=>window.open('https://wa.me/'+TEAM_WA+'?text='+encodeURICompo
 document.getElementById('regForm').addEventListener('submit',e=>{e.preventDefault();const v=id=>$(id).value.trim();
   const fac=[...$('rFac').querySelectorAll('[aria-pressed=true]')].map(b=>FAC[b.dataset.k]);
   const fees=[...$('rFees').querySelectorAll('.feerow')].map(r=>r.querySelector('select').value+': GHS '+r.querySelector('input').value.trim());
+  if(!v('rGps')&&!v('rMap')&&!HERE){toast('Add where your gym is: GPS address, Google Maps link or your location');$('rGps').focus();return}
+  const hours=[...$('rHours').querySelectorAll('.hrrow')].map(r=>r.querySelector('.days').value+' '+(r.querySelector('.h24 input').checked?'24 hours':r.querySelector('.from').value+'–'+r.querySelector('.to').value));
   openWa(['Hi FitConnect, I would like to list my gym.','Gym: '+v('rName'),'Area: '+v('rArea')+', '+(AREA_R[v('rArea')]||''),'My name: '+v('rOwner'),'My WhatsApp: '+v('rPhone'),
-    'Fees: '+fees.join(' · '),v('rLand')&&'How to find us: '+v('rLand'),'GhanaPostGPS: '+(v('rGps')||'not yet – please help us set it up'),v('rHours')&&'Opening hours: '+v('rHours'),fac.length&&'Facilities: '+fac.join(', ')]);
-  toast(`Thanks! Send the WhatsApp message to finish.`);e.target.reset();$('rFac').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed','false'));resetFees()});
+    'Fees: '+fees.join(' · '),v('rGps')&&'GhanaPostGPS: '+v('rGps').toUpperCase(),v('rMap')&&'Google Maps: '+v('rMap'),HERE&&`My location: https://maps.google.com/?q=${HERE.lat},${HERE.lng} (±${HERE.acc} m)`,
+    v('rLand')&&'How to find us: '+v('rLand'),hours.length&&'Opening hours: '+hours.join(' · '),fac.length&&'Facilities: '+fac.join(', ')]);
+  toast(`Thanks! Send the WhatsApp message to finish.`);e.target.reset();$('rFac').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed','false'));resetFees();$('rHours').innerHTML='';HERE=null;$('rHereNote').textContent=''});
+// Location: "Use my location" (only when the owner is at the gym)
+let HERE=null;
+$('rHere').addEventListener('click',()=>{
+  const n=$('rHereNote');
+  if(!navigator.geolocation){n.textContent='This phone cannot share its location. Use 1 or 2.';return}
+  n.textContent='Finding your location…';
+  navigator.geolocation.getCurrentPosition(p=>{HERE={lat:p.coords.latitude.toFixed(6),lng:p.coords.longitude.toFixed(6),acc:Math.round(p.coords.accuracy)};n.textContent=`✓ Location added (±${HERE.acc} m)`},
+    ()=>{n.textContent='Could not get your location. Allow location, or use 1 or 2.'},{enableHighAccuracy:true,timeout:15000});
+});
+// Opening hours: one row per set of days. Days first, then the times (or open 24 hours).
+const DAYS=['Mon–Fri','Mon–Sat','Every day','Sat','Sun','Sat–Sun','Mon','Tue','Wed','Thu','Fri','Public holidays'];
+function hoursRow(){
+  const used=[...$('rHours').querySelectorAll('.days')].map(s=>s.value);
+  const pick=used.length?(['Sat','Sun','Public holidays'].find(x=>!used.includes(x))||DAYS[0]):'Mon–Fri';
+  const d=document.createElement('div');d.className='hrrow';
+  d.innerHTML=`<select class="days" aria-label="Days">${DAYS.map(x=>`<option${x===pick?' selected':''}>${x}</option>`).join('')}</select>
+    <button type="button" class="close" data-rm aria-label="Remove these hours">✕</button>
+    <input class="from" type="time" value="06:00" required aria-label="Opens at"><input class="to" type="time" value="21:00" required aria-label="Closes at"><span></span>
+    <label class="h24"><input type="checkbox"> Open 24 hours</label>`;
+  $('rHours').appendChild(d);
+}
+$('rAddHours').addEventListener('click',()=>{hoursRow();$('rHours').lastElementChild.querySelector('.days').focus()});
+$('rHours').addEventListener('click',e=>{const b=e.target.closest('[data-rm]');if(b)b.closest('.hrrow').remove()});
+$('rHours').addEventListener('change',e=>{if(e.target.matches('.h24 input')){const r=e.target.closest('.hrrow');r.querySelectorAll('input[type=time]').forEach(t=>{t.disabled=e.target.checked})}});
 // Fees: one row per period (required: at least one). Period first, then the price in GHS.
 const PERIODS=['Month','Day pass','Week','3 months','6 months','Year','Student month','Couple month','Trainer month'];
 function feeRow(p){
