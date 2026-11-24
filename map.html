@@ -121,6 +121,12 @@ input,select,textarea{border:1px solid var(--line);background:var(--panel);color
 .plan ul{margin:0;padding-left:18px;font-size:14px}
 form.reg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 form.reg .full{grid-column:1/-1}
+.fees{display:grid;gap:8px}
+.feerow{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) 34px;gap:8px;align-items:center}
+.money{display:flex;align-items:center;border:1px solid var(--line);border-radius:9px;background:var(--panel);min-width:0}
+.money span{padding-left:10px;color:var(--muted);font-weight:600;font-size:14px}
+.money input{border:0;background:none;padding-left:6px}
+.feerow .close{width:34px;height:34px;padding:0}
 div.f{display:grid;gap:4px} div.f>span:first-child{font-size:12px;color:var(--muted);font-weight:600}
 .fsec{display:grid;gap:2px;border-top:1px solid var(--line);padding-top:12px;margin-top:4px}
 .fsec.first{border-top:0;padding-top:0;margin-top:0}
@@ -299,9 +305,10 @@ div.f{display:grid;gap:4px} div.f>span:first-child{font-size:12px;color:var(--mu
         <label class="f">Area<select id="rArea" required></select></label>
         <label class="f">Your name (owner or manager)<input id="rOwner" required maxlength="40" autocomplete="name" placeholder="e.g. Kwame Mensah"></label>
         <label class="f">Your WhatsApp number<input id="rPhone" required inputmode="tel" autocomplete="tel" placeholder="024 000 0000" pattern="[0-9+ ]{9,16}" title="Phone number, e.g. 024 000 0000"></label>
+        <div class="f full"><span>Fees (at least one – choose the period, then the price)</span>
+          <div class="fees" id="rFees"></div>
+          <button type="button" class="btn ghost" id="rAddFee" style="justify-self:start;padding:6px 12px">+ Add another fee</button></div>
         <div class="full fsec"><h3>Optional <span class="opt">add now or later</span></h3><span class="muted">Fill in what you know. We check the rest when we visit.</span></div>
-        <label class="f">Monthly fee (GHS)<input id="rFee" inputmode="numeric" placeholder="e.g. 350"></label>
-        <label class="f">Day pass (GHS)<input id="rDay" inputmode="numeric" placeholder="e.g. 50"></label>
         <label class="f full">How to find you (from a landmark)<input id="rLand" maxlength="140" placeholder="e.g. Opposite the Shell station, above the pharmacy, 2nd floor"></label>
         <label class="f">GhanaPostGPS address<input id="rGps" placeholder="e.g. GA-123-4567" autocapitalize="characters" maxlength="16"></label>
         <label class="f">Opening hours<input id="rHours" maxlength="80" placeholder="e.g. Mon–Sat 5:00–21:00"></label>
@@ -757,9 +764,26 @@ const TEAM_WA='233597249081';
 const openWa=lines=>window.open('https://wa.me/'+TEAM_WA+'?text='+encodeURIComponent(lines.filter(Boolean).join('\n')),'_blank','noopener');
 document.getElementById('regForm').addEventListener('submit',e=>{e.preventDefault();const v=id=>$(id).value.trim();
   const fac=[...$('rFac').querySelectorAll('[aria-pressed=true]')].map(b=>FAC[b.dataset.k]);
+  const fees=[...$('rFees').querySelectorAll('.feerow')].map(r=>r.querySelector('select').value+': GHS '+r.querySelector('input').value.trim());
   openWa(['Hi FitConnect, I would like to list my gym.','Gym: '+v('rName'),'Area: '+v('rArea')+', '+(AREA_R[v('rArea')]||''),'My name: '+v('rOwner'),'My WhatsApp: '+v('rPhone'),
-    v('rFee')&&'Monthly fee: GHS '+v('rFee'),v('rDay')&&'Day pass: GHS '+v('rDay'),v('rLand')&&'How to find us: '+v('rLand'),'GhanaPostGPS: '+(v('rGps')||'not yet – please help us set it up'),v('rHours')&&'Opening hours: '+v('rHours'),fac.length&&'Facilities: '+fac.join(', ')]);
-  toast(`Thanks! Send the WhatsApp message to finish.`);e.target.reset();$('rFac').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed','false'))});
+    'Fees: '+fees.join(' · '),v('rLand')&&'How to find us: '+v('rLand'),'GhanaPostGPS: '+(v('rGps')||'not yet – please help us set it up'),v('rHours')&&'Opening hours: '+v('rHours'),fac.length&&'Facilities: '+fac.join(', ')]);
+  toast(`Thanks! Send the WhatsApp message to finish.`);e.target.reset();$('rFac').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed','false'));resetFees()});
+// Fees: one row per period (required: at least one). Period first, then the price in GHS.
+const PERIODS=['Month','Day pass','Week','3 months','6 months','Year','Student month','Couple month','Trainer month'];
+function feeRow(p){
+  const used=[...$('rFees').querySelectorAll('select')].map(s=>s.value);
+  const pick=p||PERIODS.find(x=>!used.includes(x))||PERIODS[0];
+  const d=document.createElement('div');d.className='feerow';
+  d.innerHTML=`<select required aria-label="Period">${PERIODS.map(x=>`<option${x===pick?' selected':''}>${x}</option>`).join('')}</select>
+    <div class="money"><span>GHS</span><input required inputmode="numeric" pattern="[0-9]{1,6}" title="Price in GHS, numbers only" aria-label="Price in GHS" placeholder="e.g. 300"></div>
+    <button type="button" class="close" data-rm aria-label="Remove this fee">✕</button>`;
+  $('rFees').appendChild(d);updFees();
+}
+function updFees(){const rows=$('rFees').querySelectorAll('.feerow');rows.forEach(r=>r.querySelector('[data-rm]').style.visibility=rows.length>1?'visible':'hidden');$('rAddFee').hidden=rows.length>=PERIODS.length}
+function resetFees(){$('rFees').innerHTML='';feeRow('Month')}
+$('rAddFee').addEventListener('click',()=>{feeRow();$('rFees').lastElementChild.querySelector('input').focus()});
+$('rFees').addEventListener('click',e=>{const b=e.target.closest('[data-rm]');if(b){b.closest('.feerow').remove();updFees()}});
+resetFees();
 $('rFac').innerHTML=Object.entries(FAC).map(([k,t])=>`<button type="button" data-k="${k}" aria-pressed="false">${t}</button>`).join('');
 $('rFac').addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(b)b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true')});
 document.getElementById('sgForm').addEventListener('submit',e=>{e.preventDefault();const v=id=>$(id).value.trim();
