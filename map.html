@@ -33,7 +33,38 @@ header{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-
 .tabs button[aria-selected="true"]{background:var(--ink);color:var(--panel)}
 button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:12px;align-content:start;min-width:0}
-.searchrow{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:8px}
+.searchrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.crumbs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:14px}
+.crumbs button{border:0;background:none;color:var(--accent);font:600 14px var(--body);padding:2px 0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.crumbs .sep{color:var(--muted)}
+.qi{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;padding:9px 11px;border-radius:10px;text-align:left;cursor:pointer;width:100%}
+.qi:hover{border-color:var(--accent)}
+.gh-layout{display:grid;grid-template-columns:5fr 6fr;gap:16px;align-items:start}
+.ghmap svg{width:100%;height:auto;display:block}
+.ghmap .land{fill:var(--map);stroke:var(--muted);stroke-width:2;stroke-linejoin:round}
+.ghmap .sea{font:italic 600 15px var(--body);fill:var(--muted)}
+.rb{cursor:pointer;outline:none}
+.rb circle{fill:var(--accent);stroke:var(--panel);stroke-width:3}
+.rb.zero circle{fill:var(--panel);stroke:var(--muted);stroke-width:2}
+.rb .rn{font:700 16px var(--body);fill:var(--accent-ink)}
+.rb .rl{font:600 16px var(--body);fill:var(--ink);paint-order:stroke;stroke:var(--map);stroke-width:4px}
+.rb.zero .rl{fill:var(--muted)}
+.rb:hover circle,.rb:focus-visible circle{stroke:var(--ink);stroke-width:3}
+.zones{display:grid;gap:14px}
+.zone h3{font:600 12px var(--body);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.regs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.regbtn{display:flex;justify-content:space-between;gap:6px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:600 14px var(--body);padding:10px 12px;border-radius:10px;cursor:pointer;text-align:left}
+.regbtn:hover{border-color:var(--accent)}
+.regbtn .n,.chips .n{color:var(--accent);font-variant-numeric:tabular-nums}
+.regbtn.zero{color:var(--muted)} .regbtn.zero .n{color:var(--muted);font-weight:500}
+.chips button .n{margin-left:3px}
+.chips button[aria-pressed="true"] .n{color:inherit}
+.chips button.zero{color:var(--muted)} .chips button.zero .n{color:var(--muted)}
+.areas{display:grid;gap:12px}
+.agrp h3{font:600 13px var(--body);color:var(--muted);margin-bottom:6px}
+.lh{font:600 14px var(--body);color:var(--muted);margin:4px 0 0}
+.alab{position:absolute;transform:translate(-50%,10px);border:0;background:none;padding:0;font:600 10px var(--body);color:var(--muted);white-space:nowrap;cursor:pointer}
+.alab.on{color:var(--accent);font-weight:700}
 label.f{display:grid;gap:4px;font-size:12px;color:var(--muted);font-weight:600}
 input,select,textarea{border:1px solid var(--line);background:var(--panel);color:var(--ink);font:15px var(--body);padding:10px 11px;border-radius:9px;width:100%;min-width:0}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
@@ -109,12 +140,12 @@ form.reg .full{grid-column:1/-1}
 .tbl th,.tbl td{text-align:left;padding:6px 4px;border-bottom:1px solid var(--line);vertical-align:top}
 .tbl th{color:var(--muted);font-weight:600}
 .tblwrap{overflow-x:auto}
-@media (max-width:760px){.layout{grid-template-columns:1fr}.searchrow{grid-template-columns:1fr 1fr}.searchrow .f:first-child{grid-column:1/-1}.steps,.plans{grid-template-columns:1fr}form.reg{grid-template-columns:1fr}.kpis{grid-template-columns:1fr 1fr}}
+@media (max-width:760px){.layout,.gh-layout{grid-template-columns:1fr}.ghmap{max-width:420px;width:100%;margin:0 auto}.steps,.plans{grid-template-columns:1fr}form.reg{grid-template-columns:1fr}.kpis{grid-template-columns:1fr 1fr}}
 </style>
 
 <div class="app">
   <header>
-    <div class="brand"><h1>FitConnect</h1><small>Find the right gym in Accra</small></div>
+    <div class="brand"><h1>FitConnect</h1><small>Find the right gym in Ghana</small></div>
     <div class="hdr-right"><span class="sample">Beta · sample gyms</span><button class="who" id="whoBtn" type="button">Sign up</button></div>
   </header>
 
@@ -129,8 +160,28 @@ form.reg .full{grid-column:1/-1}
   <!-- FIND -->
   <section id="v-find" class="app">
     <div class="panel">
+      <nav class="crumbs" id="crumbs" aria-label="Where you are looking"></nav>
+      <label class="f">Search a gym, town or area<input id="q" type="search" placeholder="e.g. Kumasi, East Legon, Lezo" autocomplete="off"></label>
+      <div id="qres" class="list" hidden></div>
+    </div>
+
+    <!-- Step 1: pick a region on the map of Ghana -->
+    <div class="panel" id="pickRegion">
+      <div><h2>Where do you want to train?</h2><span class="muted">Choose a region first, then an area.</span></div>
+      <div class="gh-layout">
+        <div class="ghmap" id="ghmap"></div>
+        <div class="zones" id="zones"></div>
+      </div>
+    </div>
+
+    <!-- Step 2: pick an area inside the region, then see the gyms -->
+    <div id="inRegion" class="app" hidden>
+    <div class="panel">
+      <div class="top"><div><h2 id="regTitle"></h2><span class="muted" id="regSub"></span></div><button class="close" id="chgRegion" type="button">Change region</button></div>
+      <div id="areas" class="areas"></div>
+    </div>
+    <div class="panel">
       <div class="searchrow">
-        <label class="f">I am near<select id="area"></select></label>
         <label class="f">Monthly fee up to<select id="maxFee">
           <option value="99999">Any price</option><option value="200">GHS 200</option><option value="400">GHS 400</option><option value="700">GHS 700</option><option value="1200">GHS 1,200</option></select></label>
         <label class="f">Sort by<select id="sort"><option value="dist">Closest</option><option value="price">Cheapest</option><option value="rating">Best rated</option></select></label>
@@ -140,9 +191,10 @@ form.reg .full{grid-column:1/-1}
     <div class="layout">
       <div class="panel">
         <div class="map" id="map" aria-label="Map of gyms"></div>
-        <small class="muted">Pins are checked by our team on site. Tap a pin to see the gym.</small>
+        <small class="muted">Tap a pin to see the gym, or an area name to choose it.</small>
       </div>
       <div class="list" id="results"></div>
+    </div>
     </div>
     <div class="panel" id="suggest">
       <h2>Know a gym that is not here?</h2>
@@ -249,7 +301,52 @@ form.reg .full{grid-column:1/-1}
 
 <script>
 (function(){
-const AREAS={"East Legon":[5.636,-0.158],"Airport Residential":[5.605,-0.180],"Osu":[5.556,-0.182],"Labone":[5.566,-0.170],"Cantonments":[5.578,-0.168],"Spintex":[5.632,-0.112],"Madina":[5.682,-0.166],"Adenta":[5.706,-0.158],"Haatso":[5.668,-0.196],"Achimota":[5.620,-0.226],"Tesano":[5.598,-0.232],"Dansoman":[5.545,-0.264],"Awoshie–Pokuase":[5.672,-0.294]};
+/* ---------- Places: 16 regions of Ghana -> area groups -> areas (approx. centre points) ---------- */
+// c = map point (regional capital), cap = capital, lab = where the name sits on the Ghana map
+const REGIONS={
+ "Greater Accra":{c:[5.603,-0.187],cap:"Accra",lab:"r"},
+ "Central":{c:[5.106,-1.247],cap:"Cape Coast",lab:"b"},
+ "Western":{c:[4.899,-1.760],cap:"Sekondi-Takoradi",lab:"l"},
+ "Eastern":{c:[6.094,-0.259],cap:"Koforidua",lab:"l"},
+ "Volta":{c:[6.601,0.470],cap:"Ho",lab:"r"},
+ "Ashanti":{c:[6.692,-1.623],cap:"Kumasi",lab:"r"},
+ "Western North":{c:[6.210,-2.488],cap:"Sefwi Wiawso",lab:"r"},
+ "Ahafo":{c:[6.804,-2.517],cap:"Goaso",lab:"r"},
+ "Bono":{c:[7.339,-2.327],cap:"Sunyani",lab:"l"},
+ "Bono East":{c:[7.586,-1.938],cap:"Techiman",lab:"r"},
+ "Oti":{c:[8.070,0.179],cap:"Dambai",lab:"r"},
+ "Northern":{c:[9.400,-0.839],cap:"Tamale",lab:"r"},
+ "Savannah":{c:[9.083,-1.818],cap:"Damongo",lab:"l"},
+ "North East":{c:[10.527,-0.368],cap:"Nalerigu",lab:"r"},
+ "Upper East":{c:[10.785,-0.851],cap:"Bolgatanga",lab:"l"},
+ "Upper West":{c:[10.060,-2.501],cap:"Wa",lab:"r"}
+};
+const ZONES=[["South",["Greater Accra","Central","Western","Eastern","Volta"]],["Middle",["Ashanti","Western North","Ahafo","Bono","Bono East","Oti"]],["North",["Northern","Savannah","North East","Upper East","Upper West"]]];
+const AREA_TREE={
+ "Greater Accra":[
+  ["Airport, Osu & Cantonments",[["Airport Residential",5.605,-0.180],["Osu",5.556,-0.182],["Labone",5.566,-0.170],["Cantonments",5.578,-0.168]]],
+  ["East Legon, Madina & Adenta",[["East Legon",5.636,-0.158],["Madina",5.682,-0.166],["Adenta",5.706,-0.158],["Haatso",5.668,-0.196],["Spintex",5.632,-0.112]]],
+  ["Achimota, Dome & Pokuase",[["Achimota",5.620,-0.226],["Tesano",5.598,-0.232],["Dome",5.651,-0.236],["Lapaz",5.607,-0.251],["Awoshie–Pokuase",5.672,-0.294]]],
+  ["West Accra",[["Dansoman",5.545,-0.264],["Kaneshie",5.567,-0.236]]],
+  ["Tema & Ashaiman",[["Tema",5.669,-0.017],["Ashaiman",5.694,-0.034],["Sakumono",5.620,-0.055]]]],
+ "Ashanti":[["Kumasi",[["Adum",6.692,-1.623],["Bantama",6.703,-1.636],["Asokwa",6.665,-1.610],["Ahodwo",6.664,-1.632],["KNUST & Ayeduase",6.674,-1.567]]],["Other towns",[["Ejisu",6.723,-1.468],["Obuasi",6.206,-1.665]]]],
+ "Central":[["",[["Cape Coast",5.106,-1.247],["Kasoa",5.534,-0.417],["Winneba",5.351,-0.623]]]],
+ "Western":[["",[["Takoradi",4.899,-1.760],["Tarkwa",5.300,-1.996]]]],
+ "Western North":[["",[["Sefwi Wiawso",6.210,-2.488]]]],
+ "Eastern":[["",[["Koforidua",6.094,-0.259],["Aburi",5.848,-0.175],["Nkawkaw",6.551,-0.766]]]],
+ "Volta":[["",[["Ho",6.601,0.470],["Hohoe",7.152,0.473],["Keta",5.918,0.989]]]],
+ "Oti":[["",[["Dambai",8.070,0.179]]]],
+ "Bono":[["",[["Sunyani",7.339,-2.327]]]],
+ "Bono East":[["",[["Techiman",7.586,-1.938],["Kintampo",8.056,-1.731]]]],
+ "Ahafo":[["",[["Goaso",6.804,-2.517]]]],
+ "Northern":[["",[["Tamale",9.400,-0.839],["Yendi",9.443,-0.010]]]],
+ "Savannah":[["",[["Damongo",9.083,-1.818]]]],
+ "North East":[["",[["Nalerigu",10.527,-0.368]]]],
+ "Upper East":[["",[["Bolgatanga",10.785,-0.851],["Bawku",11.060,-0.240]]]],
+ "Upper West":[["",[["Wa",10.060,-2.501]]]]
+};
+const AREAS={},AREA_R={};
+Object.entries(AREA_TREE).forEach(([r,gs])=>gs.forEach(([,list])=>list.forEach(([a,la,lo])=>{AREAS[a]=[la,lo];AREA_R[a]=r})));
 const FAC={ac:"Air conditioning",shower:"Showers",parking:"Parking",trainer:"Personal trainer",classes:"Group classes",women:"Women-only hours",pool:"Pool",open24:"Open late (after 10pm)"};
 const G=[
  {id:1,name:"Trailhead Fitness",area:"East Legon",dx:.004,dy:-.003,m:450,d:60,q:1250,hours:"Mon–Fri 5:00–22:00 · Sat 6:00–18:00 · Sun 7:00–14:00",f:["ac","shower","parking","trainer","classes"],v:true,r:4.7,n:86,land:"Off the A&C Mall road. Turn at the blue Total station, 3rd building on the left, white gate with green sign.",partner:true},
@@ -295,43 +392,105 @@ const money=v=>known(v)?'GHS '+v:'Ask the gym';
 const priceTag=g=>known(g.m)?`GHS ${g.m}<small> /month</small>`:'<small>Fee: ask the gym</small>';
 const realTag=g=>g.real?' <span class="real">Real gym</span>':'';
 function km(a,b){const R=6371,t=x=>x*Math.PI/180,dl=t(b[0]-a[0]),dn=t(b[1]-a[1]);const h=Math.sin(dl/2)**2+Math.cos(t(a[0]))*Math.cos(t(b[0]))*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(h))}
-const S={area:"East Legon",max:99999,sort:"dist",f:new Set()};
-try{const a=localStorage.getItem('fc-area');if(a&&AREAS[a])S.area=a}catch(e){}
-
-const areaSel=document.getElementById('area'),rArea=document.getElementById('rArea');
-Object.keys(AREAS).sort().forEach(a=>{areaSel.add(new Option(a,a));rArea.add(new Option(a,a))});
-areaSel.value=S.area;
+const S={region:null,area:null,max:99999,sort:"dist",f:new Set()};
+const slug=s=>s.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+const regionOf=g=>AREA_R[g.area];
+const cntR=r=>G.filter(g=>regionOf(g)===r).length;
+const cntA=a=>G.filter(g=>g.area===a).length;
+const center=()=>S.area?AREAS[S.area]:S.region?REGIONS[S.region].c:[5.603,-0.187];
+// Where to start: link like map.html#/greater-accra/east-legon, else the last place this phone used
+function fromHash(){
+  const p=decodeURIComponent(location.hash.replace(/^#\/?/,'')).split('/').filter(Boolean);
+  const r=Object.keys(REGIONS).find(x=>slug(x)===p[0]);
+  if(!r)return false;
+  S.region=r;S.area=Object.keys(AREAS).find(a=>AREA_R[a]===r&&slug(a)===p[1])||null;return true;
+}
+if(!fromHash()){try{const o=JSON.parse(localStorage.getItem('fc-loc')||'null');if(o&&REGIONS[o.region]){S.region=o.region;S.area=AREA_R[o.area]===o.region?o.area:null}}catch(e){}}
+function setLoc(r,a){
+  S.region=r||null;S.area=a||null;
+  try{localStorage.setItem('fc-loc',JSON.stringify({region:S.region,area:S.area}))}catch(e){}
+  try{history.replaceState(null,'',S.region?'#/'+slug(S.region)+(S.area?'/'+slug(S.area):''):location.pathname+location.search)}catch(e){}
+  renderFind();
+  document.getElementById('v-find').scrollIntoView({block:'start'});
+}
+window.addEventListener('hashchange',()=>{if(fromHash())renderFind()});
+function fillAreaSelect(sel){
+  sel.innerHTML=Object.keys(AREA_TREE).map(r=>`<optgroup label="${esc(r)}">${Object.keys(AREAS).filter(a=>AREA_R[a]===r).map(a=>`<option value="${esc(a)}">${esc(a)}</option>`).join('')}</optgroup>`).join('');
+}
+const rArea=document.getElementById('rArea');fillAreaSelect(rArea);
 document.getElementById('facets').innerHTML=['ac','shower','parking','trainer','classes','women','open24','dayPass'].map(k=>`<button type="button" data-k="${k}" aria-pressed="false">${k==='dayPass'?'Day pass under GHS 50':FAC[k]}</button>`).join('');
 
+// Gyms in the chosen region that pass the filters. km is from the chosen area (none when "All areas").
 function filtered(){
-  const me=AREAS[S.area];
-  let L=G.map(g=>({...g,km:km(me,pos(g))})).filter(g=>(!known(g.m)||g.m<=S.max)&&[...S.f].every(k=>k==='dayPass'?known(g.d)&&g.d<50:g.f.includes(k)));
+  const me=S.area?AREAS[S.area]:null;
+  let L=G.filter(g=>regionOf(g)===S.region).map(g=>({...g,km:me?km(me,pos(g)):null}))
+    .filter(g=>(!known(g.m)||g.m<=S.max)&&[...S.f].every(k=>k==='dayPass'?known(g.d)&&g.d<50:g.f.includes(k)));
   const pm=g=>known(g.m)?g.m:1e9;
-  L.sort((a,b)=>S.sort==='price'?pm(a)-pm(b):S.sort==='rating'?b.r-a.r:a.km-b.km);
+  L.sort((a,b)=>S.sort==='price'?pm(a)-pm(b):(S.sort==='rating'||!me)?b.r-a.r:a.km-b.km);
   return L;
 }
-function renderFind(){
-  const L=filtered(),ids=new Set(L.map(g=>g.id));
-  document.getElementById('results').innerHTML=(L.length?'':`<div class="panel"><b>No gym matches all your choices.</b><span class="muted">Remove a filter or raise the monthly fee.</span></div>`)+L.map(g=>`
+const gymCard=g=>`
    <button class="card" data-id="${g.id}">
-     <div class="top"><div><h3>${esc(g.name)}${realTag(g)}${ME&&(ME.saved||[]).includes(g.id)?' <span style="color:var(--accent)" aria-label="saved">♥</span>':''}</h3><div class="meta">${g.area} · ${g.km.toFixed(1)} km · ★ ${rating(g).r} (${rating(g).n})</div></div>
+     <div class="top"><div><h3>${esc(g.name)}${realTag(g)}${ME&&(ME.saved||[]).includes(g.id)?' <span style="color:var(--accent)" aria-label="saved">♥</span>':''}</h3><div class="meta">${esc(g.area)}${g.km!=null&&g.area!==S.area?` · ${g.km.toFixed(1)} km`:''} · ★ ${rating(g).r} (${rating(g).n})</div></div>
      <div class="price">${priceTag(g)}</div></div>
      <div class="row">${g.v?'<span class="ver">✓ Location checked</span>':'<span class="unv">Not checked yet</span>'}${known(g.d)?`<span class="meta">Day pass GHS ${g.d}</span>`:''}</div>
      <div class="tags">${g.f.slice(0,4).map(k=>`<span class="tag">${FAC[k]}</span>`).join('')}${g.f.length>4?`<span class="tag">+${g.f.length-4}</span>`:''}</div>
-   </button>`).join('');
-  // map board
-  const lat=[5.53,5.72],lon=[-0.31,-0.09];
-  const X=l=>((l-lon[0])/(lon[1]-lon[0])*100).toFixed(2), Y=l=>((lat[1]-l)/(lat[1]-lat[0])*100).toFixed(2);
-  const me=AREAS[S.area];
-  let svg=`<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-    <path d="M0 96 C25 93 45 99 70 92 S95 86 100 84 L100 100 L0 100Z" fill="var(--road)" opacity=".7"/>
-    <path d="M5 70 L48 52 L95 40 M48 52 L52 5 M30 95 L48 52 M48 52 L85 92" stroke="var(--road)" stroke-width="1.4" fill="none"/>
-  </svg>`;
-  let html=svg+Object.entries(AREAS).map(([a,p])=>`<div style="position:absolute;left:${X(p[1])}%;top:${Y(p[0])}%;transform:translate(-50%,14px);font:600 10px var(--body);color:var(--muted);white-space:nowrap;pointer-events:none">${a}</div>`).join('')
-   +`<div class="you" style="left:${X(me[1])}%;top:${Y(me[0])}%" title="You"></div>`
-   +G.map(g=>{const p=pos(g);return `<button class="pin ${ids.has(g.id)?'':'dim'}" data-id="${g.id}" style="left:${X(p[1])}%;top:${Y(p[0])}%" aria-label="${esc(g.name)}"><span>${known(g.m)?g.m:'?'}</span></button>`}).join('')
-   +`<div style="position:absolute;right:8px;bottom:6px;font:600 10px var(--body);color:var(--muted)">Gulf of Guinea</div>`;
-  document.getElementById('map').innerHTML=html;
+   </button>`;
+function renderCrumbs(){
+  const c=['<span>'+(S.region?'<button type="button" data-crumb="ghana">Ghana</button>':'<b>Ghana</b>')+'</span>'];
+  if(S.region)c.push('<span>'+(S.area?`<button type="button" data-crumb="region">${esc(S.region)}</button>`:`<b>${esc(S.region)}</b>`)+'</span>');
+  if(S.area)c.push(`<b>${esc(S.area)}</b>`);
+  $('crumbs').innerHTML=c.join('<span class="sep" aria-hidden="true">›</span>');
+}
+// Ghana outline (simplified, lon/lat) and the region bubbles on top
+const GH=[[-3.11,5.09],[-2.70,4.98],[-2.24,4.87],[-2.09,4.74],[-1.95,4.77],[-1.74,4.90],[-1.35,5.08],[-1.06,5.20],[-0.62,5.35],[-0.42,5.48],[-0.20,5.53],[0.0,5.62],[0.11,5.70],[0.63,5.78],[0.99,5.92],[1.20,6.10],[1.05,6.35],[0.75,6.55],[0.65,6.80],[0.55,7.10],[0.60,7.40],[0.65,7.65],[0.52,8.00],[0.40,8.30],[0.50,8.70],[0.45,9.10],[0.35,9.50],[0.25,10.00],[0.35,10.40],[0.05,10.70],[0.0,11.08],[-0.15,11.13],[-0.55,11.0],[-0.95,11.0],[-1.40,11.0],[-1.95,11.0],[-2.40,11.0],[-2.83,11.0],[-2.93,10.70],[-2.80,10.20],[-2.85,9.70],[-2.70,9.40],[-2.60,9.00],[-2.80,8.30],[-2.95,7.90],[-3.05,7.30],[-3.25,6.80],[-3.20,6.30],[-3.00,5.80],[-2.80,5.40]];
+const GX=lo=>((lo+3.4)*100).toFixed(1), GY=la=>((11.3-la)*100).toFixed(1);
+function renderGhana(){
+  const bub=Object.entries(REGIONS).map(([r,o])=>{
+    const n=cntR(r),x=+GX(o.c[1]),y=+GY(o.c[0]),rad=n?Math.min(24,13+n):8;
+    const L={r:[x+rad+5,y+5,'start'],l:[x-rad-5,y+5,'end'],b:[x,y+rad+17,'middle'],t:[x,y-rad-7,'middle']}[o.lab||'r'];
+    return `<g class="rb ${n?'':'zero'}" data-region="${esc(r)}" tabindex="0" role="button" aria-label="${esc(r)}: ${n} gyms"><circle cx="${x}" cy="${y}" r="${rad}"/>${n?`<text class="rn" x="${x}" y="${y+6}" text-anchor="middle">${n}</text>`:''}<text class="rl" x="${L[0]}" y="${L[1]}" text-anchor="${L[2]}">${esc(r)}</text></g>`;
+  }).join('');
+  $('ghmap').innerHTML=`<svg viewBox="0 0 480 690" role="img" aria-label="Map of Ghana. Each circle is a region with its number of gyms.">
+    <path class="land" d="M${GH.map(([lo,la])=>GX(lo)+' '+GY(la)).join(' L')}Z"/>
+    <text class="sea" x="240" y="684" text-anchor="middle">Gulf of Guinea</text>${bub}</svg>`;
+  $('zones').innerHTML=ZONES.map(([z,rs])=>`<div class="zone"><h3>${z}</h3><div class="regs">${rs.map(r=>{const n=cntR(r);return `<button type="button" class="regbtn ${n?'':'zero'}" data-region="${esc(r)}"><span>${esc(r)}</span><span class="n">${n}</span></button>`}).join('')}</div></div>`).join('')
+    +'<small class="muted">Numbers show the gyms listed so far. FitConnect is starting in Accra and adding more towns.</small>';
+}
+function renderAreas(){
+  const r=S.region,gs=AREA_TREE[r];
+  $('regTitle').textContent=r;
+  $('regSub').textContent=`${cntR(r)} gyms · capital ${REGIONS[r].cap}`;
+  $('areas').innerHTML=`<div class="chips"><button type="button" data-area="" aria-pressed="${!S.area}">All areas <span class="n">${cntR(r)}</span></button></div>`
+    +gs.map(([gn,list])=>`<div class="agrp">${gn?`<h3>${esc(gn)}</h3>`:''}<div class="chips">${list.map(([a])=>{const n=cntA(a);return `<button type="button" data-area="${esc(a)}" aria-pressed="${S.area===a}" class="${n?'':'zero'}">${esc(a)} <span class="n">${n}</span></button>`}).join('')}</div></div>`).join('');
+}
+function renderFind(){
+  renderCrumbs();
+  $('pickRegion').hidden=!!S.region;$('inRegion').hidden=!S.region;
+  if(!S.region){renderGhana();return}
+  renderAreas();
+  const L=filtered(),ids=new Set(L.map(g=>g.id)),all=cntR(S.region);
+  const place=S.area||S.region;
+  const empty=`<div class="panel"><b>No gyms listed in ${esc(place)} yet.</b><span class="muted">FitConnect is new here. Know a gym? Tell us and we add it.</span><button class="btn" type="button" data-suggest style="justify-self:start">Suggest a gym</button></div>`;
+  let html;
+  if(!all) html=empty;
+  else if(!L.length) html=`<div class="panel"><b>No gym matches all your choices.</b><span class="muted">Remove a filter or raise the monthly fee.</span></div>`;
+  else if(S.area){
+    const inA=L.filter(g=>g.area===S.area),near=L.filter(g=>g.area!==S.area);
+    html=(inA.length?`<h3 class="lh">${inA.length} gym${inA.length>1?'s':''} in ${esc(S.area)}</h3>`+inA.map(gymCard).join(''):empty)
+      +(near.length?`<h3 class="lh">Nearby in ${esc(S.region)}</h3>`+near.map(gymCard).join(''):'');
+  } else html=`<h3 class="lh">${L.length} gym${L.length>1?'s':''} in ${esc(S.region)}</h3>`+L.map(gymCard).join('');
+  $('results').innerHTML=html;
+  // map board: fits the chosen region's areas and gyms
+  const pts=[...Object.keys(AREAS).filter(a=>AREA_R[a]===S.region).map(a=>AREAS[a]),...G.filter(g=>regionOf(g)===S.region).map(pos)];
+  const las=pts.map(p=>p[0]),los=pts.map(p=>p[1]);
+  const span=Math.max(Math.max(...las)-Math.min(...las),Math.max(...los)-Math.min(...los),0.06)*1.3;
+  const cla=(Math.max(...las)+Math.min(...las))/2,clo=(Math.max(...los)+Math.min(...los))/2;
+  const X=l=>((l-(clo-span/2))/span*100).toFixed(2), Y=l=>(((cla+span/2)-l)/span*100).toFixed(2);
+  let b=Object.keys(AREAS).filter(a=>AREA_R[a]===S.region).map(a=>{const p=AREAS[a];return `<button type="button" class="alab ${S.area===a?'on':''}" data-area="${esc(a)}" style="left:${X(p[1])}%;top:${Y(p[0])}%">${esc(a)}</button>`}).join('');
+  if(S.area){const me=AREAS[S.area];b+=`<div class="you" style="left:${X(me[1])}%;top:${Y(me[0])}%" title="${esc(S.area)}"></div>`}
+  b+=G.filter(g=>regionOf(g)===S.region).map(g=>{const p=pos(g);return `<button class="pin ${ids.has(g.id)?'':'dim'}" data-id="${g.id}" style="left:${X(p[1])}%;top:${Y(p[0])}%" aria-label="${esc(g.name)}"><span>${known(g.m)?g.m:'?'}</span></button>`}).join('');
+  $('map').innerHTML=b;
 }
 /* ---------- Storage: shared (claude.ai db) or this device only ---------- */
 const $=id=>document.getElementById(id);
@@ -396,7 +555,7 @@ const starTxt=n=>'★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,5-n);
 
 /* ---------- Recommendations from goals, budget and area ---------- */
 function recommend(p){
-  const me=AREAS[p.area]||AREAS[S.area];
+  const me=AREAS[p.area]||center();
   return G.map(g=>{
     const k=km(me,pos(g)), hit=(p.goals||[]).filter(x=>g.g.includes(x));
     let s=hit.length*3 - k*0.5;
@@ -409,12 +568,12 @@ function recommend(p){
 }
 
 function openGym(id){
-  const g=G.find(x=>x.id==id);const k=km(AREAS[S.area],pos(g));
+  const g=G.find(x=>x.id==id);const k=S.area&&S.area!==g.area?km(AREAS[S.area],pos(g)):null;
   const ev=EV.filter(e=>e.gym===g.id);
   const p=pos(g), rt=rating(g), revs=gymReviews(g.id), isSaved=!!ME&&(ME.saved||[]).includes(g.id);
   const mineHere=myReviews().find(r=>r.gym==g.id);
   document.getElementById('sheet').innerHTML=`
-   <div class="top"><div><h2>${esc(g.name)}${realTag(g)}</h2><div class="meta">${g.area} · ${k.toFixed(1)} km from ${S.area} · ★ ${rt.r} (${rt.n} reviews${g.real?' on Google':''})</div></div><button class="close" data-close>Close</button></div>
+   <div class="top"><div><h2>${esc(g.name)}${realTag(g)}</h2><div class="meta">${esc(g.area)}, ${esc(regionOf(g))}${k!=null?` · ${k.toFixed(1)} km from ${esc(S.area)}`:''} · ★ ${rt.r} (${rt.n} reviews${g.real?' on Google':''})</div></div><button class="close" data-close>Close</button></div>
    ${g.v?'<span class="ver" style="justify-self:start">✓ Location and prices checked on site · Nov 2026</span>':`<span class="unv" style="justify-self:start">${g.real?'Not checked on site yet – details from Google Maps':'Not checked yet – details from the gym'}</span>`}
    <div class="landmark"><b>How to get there:</b> ${esc(g.land)}</div>
    <div class="gps"><b>GhanaPostGPS:</b> ${g.gps?`<code>${esc(g.gps)}</code><button class="btn ghost" style="padding:3px 10px;font-size:12px" data-copy="${esc(g.gps)}">Copy</button>`:'<span class="muted">added when our team visits</span>'}${g.plus?`<span class="muted">· Plus Code ${esc(g.plus)}</span>`:''}</div>
@@ -454,7 +613,7 @@ function goalChips(sel){
 }
 let editing=false;
 function fillForm(p){
-  $('uName').value=p?.name||'';$('uArea').value=p?.area||S.area;$('uLevel').value=p?.level||'new';
+  $('uName').value=p?.name||'';$('uArea').value=p?.area||S.area||'East Legon';$('uLevel').value=p?.level||'new';
   $('uBudget').value=String(p?.budget||400);$('uWa').value=p?.wa||'';$('uWaOk').checked=!!p?.waOk;
   goalChips(p?.goals||[]);
   $('suBtn').textContent=p?'Save changes':'Create my profile';
@@ -511,12 +670,36 @@ let tt;function toast(t){const el=document.getElementById('toast');el.textConten
 function show(v){document.querySelectorAll('[role=tab]').forEach(b=>b.setAttribute('aria-selected',b.dataset.view===v));['find','events','me','owners','admin'].forEach(x=>document.getElementById('v-'+x).hidden=x!==v);window.scrollTo(0,0)}
 
 document.querySelector('.tabs').addEventListener('click',e=>{const b=e.target.closest('[data-view]');if(b)show(b.dataset.view)});
-areaSel.addEventListener('change',()=>{S.area=areaSel.value;try{localStorage.setItem('fc-area',S.area)}catch(e){}renderFind()});
+// Region and area choice (map of Ghana, region list, area chips, area names on the map, breadcrumbs)
+$('v-find').addEventListener('click',e=>{
+  const r=e.target.closest('[data-region]');if(r){setLoc(r.dataset.region,null);return}
+  const a=e.target.closest('[data-area]');if(a){setLoc(S.region,a.dataset.area||null);return}
+  const c=e.target.closest('[data-crumb]');if(c){setLoc(c.dataset.crumb==='region'?S.region:null,null);return}
+  if(e.target.closest('#chgRegion')){setLoc(null,null);return}
+  if(e.target.closest('[data-suggest]')){$('sgArea').value=S.area||S.region||'';$('suggest').scrollIntoView({behavior:'smooth',block:'start'});$('sgName').focus({preventScroll:true});return}
+});
+$('ghmap').addEventListener('keydown',e=>{const r=e.target.closest('[data-region]');if(r&&(e.key==='Enter'||e.key===' ')){e.preventDefault();setLoc(r.dataset.region,null)}});
+// Search: regions, areas and gyms anywhere in Ghana
+$('q').addEventListener('input',()=>{
+  const t=$('q').value.trim().toLowerCase(),box=$('qres');
+  if(t.length<2){box.hidden=true;return}
+  const regs=Object.keys(REGIONS).filter(r=>r.toLowerCase().includes(t)||REGIONS[r].cap.toLowerCase().includes(t)).map(r=>`<button type="button" class="qi" data-go-r="${esc(r)}"><b>${esc(r)}</b><span class="meta">Region · ${cntR(r)} gyms</span></button>`);
+  const ars=Object.keys(AREAS).filter(a=>a.toLowerCase().includes(t)).map(a=>`<button type="button" class="qi" data-go-r="${esc(AREA_R[a])}" data-go-a="${esc(a)}"><b>${esc(a)}</b><span class="meta">${esc(AREA_R[a])} · ${cntA(a)} gyms</span></button>`);
+  const gs=G.filter(g=>g.name.toLowerCase().includes(t)).map(g=>`<button type="button" class="qi" data-gym-id="${g.id}"><b>${esc(g.name)}</b><span class="meta">Gym · ${esc(g.area)}</span></button>`);
+  const all=[...regs,...ars,...gs].slice(0,8);
+  box.innerHTML=all.length?all.join(''):'<span class="muted">Nothing found. Try a town, like Kumasi or Tema.</span>';box.hidden=false;
+});
+$('qres').addEventListener('click',e=>{
+  const b=e.target.closest('.qi');if(!b)return;
+  $('q').value='';$('qres').hidden=true;
+  if(b.dataset.gymId){const g=G.find(x=>x.id==b.dataset.gymId);setLoc(regionOf(g),g.area);openGym(g.id);return}
+  setLoc(b.dataset.goR,b.dataset.goA||null);
+});
 document.getElementById('maxFee').addEventListener('change',e=>{S.max=+e.target.value;renderFind()});
 document.getElementById('sort').addEventListener('change',e=>{S.sort=e.target.value;renderFind()});
 document.getElementById('facets').addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(!b)return;const k=b.dataset.k;S.f.has(k)?S.f.delete(k):S.f.add(k);b.setAttribute('aria-pressed',S.f.has(k));renderFind()});
 document.getElementById('results').addEventListener('click',e=>{const c=e.target.closest('[data-id]');if(c)openGym(c.dataset.id)});
-document.getElementById('map').addEventListener('click',e=>{const c=e.target.closest('[data-id]');if(c)openGym(c.dataset.id)});
+document.getElementById('map').addEventListener('click',e=>{const c=e.target.closest('[data-id]');if(c){e.stopPropagation();openGym(c.dataset.id)}});
 document.getElementById('sheetBg').addEventListener('click',e=>{
   if(e.target.id==='sheetBg'||e.target.closest('[data-close]')){document.getElementById('sheetBg').hidden=true;return}
   if(e.target.closest('[data-wa]'))toast('In the real app this opens WhatsApp with the gym');
@@ -560,7 +743,7 @@ document.getElementById('sgForm').addEventListener('submit',e=>{e.preventDefault
   toast('Thank you! Send the WhatsApp message and we will visit the gym.');e.target.reset()});
 
 // Me: sign-up / edit / delete
-Object.keys(AREAS).sort().forEach(a=>$('uArea').add(new Option(a,a)));
+fillAreaSelect($('uArea'));
 $('uGoals').addEventListener('click',e=>{const b=e.target.closest('[data-g]');if(b)b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true')});
 $('uWa').addEventListener('input',()=>{if(!$('uWa').value.trim())$('uWaOk').checked=false});
 $('suForm').addEventListener('submit',async e=>{
@@ -575,7 +758,7 @@ $('suForm').addEventListener('submit',async e=>{
   const first=!ME;$('suBtn').disabled=true;
   const ok=await save(()=>put(myPath(),p),first?`Welcome, ${name}! Here are gyms for you.`:'Profile saved');
   $('suBtn').disabled=false;
-  if(ok){editing=false;delete $('suForm').dataset.filled;S.area=p.area;areaSel.value=p.area;try{localStorage.setItem('fc-area',S.area)}catch(_){};ME=p;renderAll()}
+  if(ok){editing=false;delete $('suForm').dataset.filled;ME=p;S.region=AREA_R[p.area]||S.region;S.area=p.area;try{localStorage.setItem('fc-loc',JSON.stringify({region:S.region,area:S.area}))}catch(_){};renderAll()}
 });
 $('pEdit').addEventListener('click',()=>{editing=true;delete $('suForm').dataset.filled;renderMe()});
 $('pDelete').addEventListener('click',async()=>{
