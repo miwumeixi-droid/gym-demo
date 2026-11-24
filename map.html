@@ -322,11 +322,11 @@ div.f{display:grid;gap:4px} div.f>span:first-child{font-size:12px;color:var(--mu
             <div class="row"><button type="button" class="btn ghost" id="rHere" style="padding:7px 12px">📍 Use my location</button><small class="muted" id="rHereNote"></small></div></div>
           <small class="muted">No GPS address yet? Use 2 or 3 – we set up your GhanaPostGPS address with you when we visit.</small>
         </div>
+        <div class="f full"><span>Opening hours (at least one – choose the days, then the times)</span>
+          <div class="fees" id="rHours"></div>
+          <button type="button" class="btn ghost" id="rAddHours" style="justify-self:start;padding:6px 12px">+ Add other days</button></div>
         <div class="full fsec"><h3>Optional <span class="opt">add now or later</span></h3><span class="muted">Fill in what you know. We check the rest when we visit.</span></div>
         <label class="f full">How to find you (from a landmark)<input id="rLand" maxlength="140" placeholder="e.g. Opposite the Shell station, above the pharmacy, 2nd floor"></label>
-        <div class="f full"><span>Opening hours (choose the days, then the times)</span>
-          <div class="fees" id="rHours"></div>
-          <button type="button" class="btn ghost" id="rAddHours" style="justify-self:start;padding:6px 12px">+ Add opening hours</button></div>
         <div class="f full"><span>Facilities</span><div class="chips" id="rFac"></div></div>
         <div class="full row"><button class="btn" type="submit">Send on WhatsApp</button><small class="muted">Opens WhatsApp with your details. We reply within 2 days to book the visit.</small></div>
       </form>
@@ -784,7 +784,7 @@ document.getElementById('regForm').addEventListener('submit',e=>{e.preventDefaul
   openWa(['Hi FitConnect, I would like to list my gym.','Gym: '+v('rName'),'Area: '+v('rArea')+', '+(AREA_R[v('rArea')]||''),'My name: '+v('rOwner'),'My WhatsApp: '+v('rPhone'),
     'Fees: '+fees.join(' · '),v('rGps')&&'GhanaPostGPS: '+v('rGps').toUpperCase(),v('rMap')&&'Google Maps: '+v('rMap'),HERE&&`My location: https://maps.google.com/?q=${HERE.lat},${HERE.lng} (±${HERE.acc} m)`,
     v('rLand')&&'How to find us: '+v('rLand'),hours.length&&'Opening hours: '+hours.join(' · '),fac.length&&'Facilities: '+fac.join(', ')]);
-  toast(`Thanks! Send the WhatsApp message to finish.`);e.target.reset();$('rFac').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed','false'));resetFees();$('rHours').innerHTML='';HERE=null;$('rHereNote').textContent=''});
+  toast(`Thanks! Send the WhatsApp message to finish.`);e.target.reset();$('rFac').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed','false'));resetFees();resetHours();HERE=null;$('rHereNote').textContent=''});
 // Location: "Use my location" (only when the owner is at the gym)
 let HERE=null;
 $('rHere').addEventListener('click',()=>{
@@ -804,10 +804,13 @@ function hoursRow(){
     <button type="button" class="close" data-rm aria-label="Remove these hours">✕</button>
     <input class="from" type="time" value="06:00" required aria-label="Opens at"><input class="to" type="time" value="21:00" required aria-label="Closes at"><span></span>
     <label class="h24"><input type="checkbox"> Open 24 hours</label>`;
-  $('rHours').appendChild(d);
+  $('rHours').appendChild(d);updHours();
 }
+function updHours(){const rows=$('rHours').querySelectorAll('.hrrow');rows.forEach(r=>r.querySelector('[data-rm]').style.visibility=rows.length>1?'visible':'hidden')}
+function resetHours(){$('rHours').innerHTML='';hoursRow()}
 $('rAddHours').addEventListener('click',()=>{hoursRow();$('rHours').lastElementChild.querySelector('.days').focus()});
-$('rHours').addEventListener('click',e=>{const b=e.target.closest('[data-rm]');if(b)b.closest('.hrrow').remove()});
+$('rHours').addEventListener('click',e=>{const b=e.target.closest('[data-rm]');if(b){b.closest('.hrrow').remove();updHours()}});
+resetHours();
 $('rHours').addEventListener('change',e=>{if(e.target.matches('.h24 input')){const r=e.target.closest('.hrrow');r.querySelectorAll('input[type=time]').forEach(t=>{t.disabled=e.target.checked})}});
 // Fees: one row per period (required: at least one). Period first, then the price in GHS.
 const PERIODS=['Month','Day pass','Week','3 months','6 months','Year','Student month','Couple month','Trainer month'];
