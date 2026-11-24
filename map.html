@@ -74,7 +74,9 @@ input,select,textarea{border:1px solid var(--line);background:var(--panel);color
 .ev{display:grid;grid-template-columns:64px 1fr;gap:12px;align-items:start;border:1px solid var(--line);border-radius:12px;padding:12px}
 .date{background:var(--accent-soft);border-radius:10px;text-align:center;padding:6px 0;font-family:var(--display)}
 .date b{display:block;font-size:22px;color:var(--accent)} .date small{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.steps{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.gps{font-size:13px;display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.gps code{font:700 14px var(--display);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:2px 7px}
 .step{border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:4px}
 .step b{font:700 15px var(--display)}
 .plans{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -142,6 +144,17 @@ form.reg .full{grid-column:1/-1}
       </div>
       <div class="list" id="results"></div>
     </div>
+    <div class="panel" id="suggest">
+      <h2>Know a gym that is not here?</h2>
+      <p class="muted" style="margin:0">Tell us about it – your local gym, the one your friend goes to, or one with no Google info. We visit and add it.</p>
+      <form class="reg" id="sgForm">
+        <label class="f">Gym name<input id="sgName" required maxlength="60" placeholder="e.g. Fit and Fine Gym"></label>
+        <label class="f">Area<input id="sgArea" required maxlength="40" placeholder="e.g. Dome"></label>
+        <label class="f full">How to find it<input id="sgLand" maxlength="120" placeholder="e.g. Pillar 2, near K Boat junction"></label>
+        <label class="f">Gym phone (if you know it)<input id="sgPhone" inputmode="tel" maxlength="20" placeholder="055 000 0000"></label>
+        <div class="f" style="align-self:end"><button class="btn" type="submit">Suggest on WhatsApp</button></div>
+      </form>
+    </div>
   </section>
 
   <!-- EVENTS -->
@@ -203,8 +216,9 @@ form.reg .full{grid-column:1/-1}
       <p style="margin:0">People in Accra cannot find gyms because the map pin is often wrong and prices are not online. FitConnect shows your <b>prices, facilities, opening hours and real directions</b>, and sends people straight to your WhatsApp.</p>
       <div class="steps">
         <div class="step"><b>1. We visit</b><span class="muted">We check your location, take photos of the entrance and the floor, and write the directions from a landmark.</span></div>
-        <div class="step"><b>2. You go live</b><span class="muted">Your page shows monthly fee, day pass, facilities, hours and events.</span></div>
-        <div class="step"><b>3. You get messages</b><span class="muted">People tap "WhatsApp the gym". Each month we tell you how many people viewed and messaged you.</span></div>
+        <div class="step"><b>2. We set up your address</b><span class="muted">No GhanaPostGPS address or Google Maps listing yet? We set them up with you on the spot, on our laptop – so people can find you everywhere, not only here.</span></div>
+        <div class="step"><b>3. You go live</b><span class="muted">Your page shows your GPS address, monthly fee, day pass, facilities, hours and events.</span></div>
+        <div class="step"><b>4. You get messages</b><span class="muted">People tap "WhatsApp the gym". Each month we tell you how many people viewed and messaged you.</span></div>
       </div>
     </div>
     <div class="plans" style="grid-template-columns:1fr">
@@ -219,8 +233,10 @@ form.reg .full{grid-column:1/-1}
         <label class="f">Monthly fee (GHS)<input id="rFee" inputmode="numeric" placeholder="e.g. 350"></label>
         <label class="f">Day pass (GHS)<input id="rDay" inputmode="numeric" placeholder="e.g. 50"></label>
         <label class="f full">How to find you (from a landmark)<input id="rLand" placeholder="e.g. Opposite the Shell station, above the pharmacy, 2nd floor"></label>
-        <label class="f full">Owner's WhatsApp number<input id="rPhone" inputmode="tel" placeholder="024 000 0000"></label>
-        <div class="full row"><button class="btn" type="submit">Send</button><small class="muted">We call you within 2 days to book the visit.</small></div>
+        <label class="f">GhanaPostGPS address<input id="rGps" placeholder="e.g. GA-123-4567" autocapitalize="characters"></label>
+        <label class="f">Owner's WhatsApp number<input id="rPhone" inputmode="tel" placeholder="024 000 0000"></label>
+        <small class="muted full">No GPS address yet? Leave it empty – we set it up with you when we visit.</small>
+        <div class="full row"><button class="btn" type="submit">Send on WhatsApp</button><small class="muted">Opens WhatsApp with your details. We reply within 2 days to book the visit.</small></div>
       </form>
     </div>
   </section>
@@ -394,6 +410,7 @@ function openGym(id){
    <div class="top"><div><h2>${esc(g.name)}</h2><div class="meta">${g.area} · ${k.toFixed(1)} km from ${S.area} · ★ ${rt.r} (${rt.n} reviews)</div></div><button class="close" data-close>Close</button></div>
    ${g.v?'<span class="ver" style="justify-self:start">✓ Location and prices checked on site · Nov 2026</span>':'<span class="unv" style="justify-self:start">Not checked yet – details from the gym</span>'}
    <div class="landmark"><b>How to get there:</b> ${esc(g.land)}</div>
+   <div class="gps"><b>GhanaPostGPS:</b> ${g.gps?`<code>${esc(g.gps)}</code><button class="btn ghost" style="padding:3px 10px;font-size:12px" data-copy="${esc(g.gps)}">Copy</button>`:'<span class="muted">added when our team visits</span>'}</div>
    <table><tr><td>Day pass</td><td>GHS ${g.d}</td></tr><tr><td>1 month</td><td>GHS ${g.m}</td></tr><tr><td>3 months</td><td>GHS ${g.q}</td></tr></table>
    <div><h3 style="margin-bottom:6px">Facilities</h3><div class="tags">${g.f.map(x=>`<span class="tag">${FAC[x]}</span>`).join('')}</div></div>
    <div><h3 style="margin-bottom:4px">Opening hours</h3><span>${g.hours}</span></div>
@@ -497,6 +514,7 @@ document.getElementById('sheetBg').addEventListener('click',e=>{
   if(e.target.id==='sheetBg'||e.target.closest('[data-close]')){document.getElementById('sheetBg').hidden=true;return}
   if(e.target.closest('[data-wa]'))toast('In the real app this opens WhatsApp with the gym');
   if(e.target.closest('[data-report]'))toast('Thanks – our team will check this gym again');
+  const cp=e.target.closest('[data-copy]');if(cp){navigator.clipboard?.writeText(cp.dataset.copy).then(()=>toast('GPS address copied'),()=>toast(cp.dataset.copy))}
   const sv=e.target.closest('[data-save]');if(sv)toggleSave(sv.dataset.save);
   if(e.target.closest('[data-go-signup]')){document.getElementById('sheetBg').hidden=true;show('me')}
   const st=e.target.closest('[data-star]');
@@ -524,7 +542,15 @@ document.getElementById('events').addEventListener('click',async e=>{
   }
   const g=e.target.closest('[data-gym]');if(g){show('find');openGym(g.dataset.gym)}
 });
-document.getElementById('regForm').addEventListener('submit',e=>{e.preventDefault();const n=document.getElementById('rName').value.trim();toast(`Thanks! ${n} is on the list. (Beta: nothing is sent.)`);e.target.reset()});
+// Both forms open WhatsApp to the FitConnect team with the details filled in (works without any account)
+const TEAM_WA='233597249081';
+const openWa=lines=>window.open('https://wa.me/'+TEAM_WA+'?text='+encodeURIComponent(lines.filter(Boolean).join('\n')),'_blank','noopener');
+document.getElementById('regForm').addEventListener('submit',e=>{e.preventDefault();const v=id=>$(id).value.trim();
+  openWa(['Hi FitConnect, I would like to list my gym.','Gym: '+v('rName'),'Area: '+v('rArea'),v('rFee')&&'Monthly fee: GHS '+v('rFee'),v('rDay')&&'Day pass: GHS '+v('rDay'),v('rLand')&&'How to find us: '+v('rLand'),'GhanaPostGPS: '+(v('rGps')||'not yet – please help us set it up'),v('rPhone')&&'Owner WhatsApp: '+v('rPhone')]);
+  toast(`Thanks! Send the WhatsApp message to finish.`);e.target.reset()});
+document.getElementById('sgForm').addEventListener('submit',e=>{e.preventDefault();const v=id=>$(id).value.trim();
+  openWa(['Hi FitConnect, I know a gym that is not on the map.','Gym: '+v('sgName'),'Area: '+v('sgArea'),v('sgLand')&&'How to find it: '+v('sgLand'),v('sgPhone')&&'Gym phone: '+v('sgPhone')]);
+  toast('Thank you! Send the WhatsApp message and we will visit the gym.');e.target.reset()});
 
 // Me: sign-up / edit / delete
 Object.keys(AREAS).sort().forEach(a=>$('uArea').add(new Option(a,a)));
