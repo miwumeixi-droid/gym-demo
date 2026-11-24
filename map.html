@@ -89,6 +89,10 @@ input,select,textarea{border:1px solid var(--line);background:var(--panel);color
 .tags{display:flex;flex-wrap:wrap;gap:5px}
 .tag{font-size:12px;padding:2px 8px;border-radius:999px;background:var(--map);color:var(--ink)}
 .real{font-size:11px;font-weight:700;color:#fff;background:var(--accent);padding:2px 7px;border-radius:999px;vertical-align:middle;white-space:nowrap}
+.smp{font-size:11px;font-weight:700;color:var(--muted);background:var(--bg);border:1px dashed var(--muted);padding:1px 7px;border-radius:999px;vertical-align:middle;white-space:nowrap;font-family:var(--body);letter-spacing:0}
+.pin.sample span{background:var(--panel);color:var(--muted);border:1px dashed var(--muted)}
+.pin.sample span::after{border-top-color:var(--muted)}
+.smpnote{font-size:13px;border:1px dashed var(--muted);border-radius:10px;padding:8px 10px;color:var(--ink)}
 .ver{font-size:12px;font-weight:600;color:var(--green);background:var(--green-soft);padding:2px 8px;border-radius:999px;white-space:nowrap}
 .unv{font-size:12px;font-weight:600;color:var(--muted);background:var(--map);padding:2px 8px;border-radius:999px;white-space:nowrap}
 .landmark{font-size:13px;background:var(--accent-soft);color:var(--ink);border-radius:8px;padding:6px 9px}
@@ -146,7 +150,7 @@ form.reg .full{grid-column:1/-1}
 <div class="app">
   <header>
     <div class="brand"><h1>FitConnect</h1><small>Find the right gym in Ghana</small></div>
-    <div class="hdr-right"><span class="sample">Beta · sample gyms</span><button class="who" id="whoBtn" type="button">Sign up</button></div>
+    <div class="hdr-right"><span class="sample">Beta</span><button class="who" id="whoBtn" type="button">Sign up</button></div>
   </header>
 
   <nav class="tabs" role="tablist">
@@ -213,6 +217,7 @@ form.reg .full{grid-column:1/-1}
   <section id="v-events" class="panel" hidden>
     <h2>Fitness events in Accra</h2>
     <p class="muted" style="margin:0">Hikes, bootcamps and open days from gyms and fitness groups.</p>
+    <div class="smpnote"><b>These events are samples, not real.</b> They show how events will look. Real events will be added with the gyms.</div>
     <div class="list" id="events"></div>
   </section>
 
@@ -390,7 +395,7 @@ const pos=g=>g.lat!=null?[g.lat,g.lng]:[AREAS[g.area][0]+g.dy,AREAS[g.area][1]+g
 const known=v=>v!=null;
 const money=v=>known(v)?'GHS '+v:'Ask the gym';
 const priceTag=g=>known(g.m)?`GHS ${g.m}<small> /month</small>`:'<small>Fee: ask the gym</small>';
-const realTag=g=>g.real?' <span class="real">Real gym</span>':'';
+const realTag=g=>g.real?' <span class="real">Real gym</span>':' <span class="smp">Sample – not a real gym</span>';
 function km(a,b){const R=6371,t=x=>x*Math.PI/180,dl=t(b[0]-a[0]),dn=t(b[1]-a[1]);const h=Math.sin(dl/2)**2+Math.cos(t(a[0]))*Math.cos(t(b[0]))*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(h))}
 const S={region:null,area:null,max:99999,sort:"dist",f:new Set()};
 const slug=s=>s.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
@@ -480,6 +485,7 @@ function renderFind(){
     html=(inA.length?`<h3 class="lh">${inA.length} gym${inA.length>1?'s':''} in ${esc(S.area)}</h3>`+inA.map(gymCard).join(''):empty)
       +(near.length?`<h3 class="lh">Nearby in ${esc(S.region)}</h3>`+near.map(gymCard).join(''):'');
   } else html=`<h3 class="lh">${L.length} gym${L.length>1?'s':''} in ${esc(S.region)}</h3>`+L.map(gymCard).join('');
+  if(L.some(g=>!g.real))html=`<div class="smpnote"><b>Gyms marked “Sample” are not real.</b> We made them up to show how FitConnect works. Real gyms have the orange “Real gym” mark.</div>`+html;
   $('results').innerHTML=html;
   // map board: fits the chosen region's areas and gyms
   const pts=[...Object.keys(AREAS).filter(a=>AREA_R[a]===S.region).map(a=>AREAS[a]),...G.filter(g=>regionOf(g)===S.region).map(pos)];
@@ -489,7 +495,7 @@ function renderFind(){
   const X=l=>((l-(clo-span/2))/span*100).toFixed(2), Y=l=>(((cla+span/2)-l)/span*100).toFixed(2);
   let b=Object.keys(AREAS).filter(a=>AREA_R[a]===S.region).map(a=>{const p=AREAS[a];return `<button type="button" class="alab ${S.area===a?'on':''}" data-area="${esc(a)}" style="left:${X(p[1])}%;top:${Y(p[0])}%">${esc(a)}</button>`}).join('');
   if(S.area){const me=AREAS[S.area];b+=`<div class="you" style="left:${X(me[1])}%;top:${Y(me[0])}%" title="${esc(S.area)}"></div>`}
-  b+=G.filter(g=>regionOf(g)===S.region).map(g=>{const p=pos(g);return `<button class="pin ${ids.has(g.id)?'':'dim'}" data-id="${g.id}" style="left:${X(p[1])}%;top:${Y(p[0])}%" aria-label="${esc(g.name)}"><span>${known(g.m)?g.m:'?'}</span></button>`}).join('');
+  b+=G.filter(g=>regionOf(g)===S.region).map(g=>{const p=pos(g);return `<button class="pin ${ids.has(g.id)?'':'dim'} ${g.real?'':'sample'}" data-id="${g.id}" style="left:${X(p[1])}%;top:${Y(p[0])}%" aria-label="${esc(g.name)}${g.real?'':' (sample)'}"><span>${known(g.m)?g.m:'?'}</span></button>`}).join('');
   $('map').innerHTML=b;
 }
 /* ---------- Storage: shared (claude.ai db) or this device only ---------- */
@@ -585,7 +591,7 @@ function openGym(id){
    <a class="btn ghost" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${p[0].toFixed(5)},${p[1].toFixed(5)}">Directions</a>
    <button class="btn ghost" data-save="${g.id}" aria-pressed="${isSaved}">${isSaved?'♥ Saved':'♡ Save'}</button>
    <button class="btn ghost" data-report>Wrong info?</button></div>
-   ${g.real?`<small class="muted">Real gym. Address, hours, phone and rating are from its <a href="${esc(g.src)}" target="_blank" rel="noopener">Google Maps listing</a>. Fees will be added after we talk with the gym.</small>`:`<small class="muted">Sample gym for the beta. The WhatsApp button will open a chat with the gym: "Hi, I found you on FitConnect. Can I come for a day pass today?"</small>`}
+   ${g.real?`<small class="muted">Real gym. Address, hours, phone and rating are from its <a href="${esc(g.src)}" target="_blank" rel="noopener">Google Maps listing</a>. Fees will be added after we talk with the gym.</small>`:`<div class="smpnote"><b>This is a sample gym – it does not exist.</b> The name, prices, photos, reviews and events are made up to show how FitConnect works. On a real gym, the WhatsApp button opens a chat with the gym.</div>`}
    <div style="display:grid;gap:8px">
      <h3>Reviews</h3>
      ${ME?(mineHere?`<div class="note">You reviewed this gym: ${starTxt(mineHere.stars)}. You can change it below.</div>`:'')+`
@@ -602,7 +608,7 @@ function openGym(id){
 }
 function renderEvents(){
   document.getElementById('events').innerHTML=EV.map(e=>{const d=new Date(e.d);return `<div class="ev"><div class="date"><b>${d.getDate()}</b><small>${d.toLocaleDateString('en-GB',{month:'short'})}</small></div>
-   <div style="display:grid;gap:3px;min-width:0"><h3>${esc(e.t)}</h3><span class="meta">${esc(e.where)}</span><span class="meta">By ${esc(e.host)} · <b style="color:var(--ink)">${esc(e.price)}</b></span>
+   <div style="display:grid;gap:3px;min-width:0"><h3>${esc(e.t)} <span class="smp">Sample event</span></h3><span class="meta">${esc(e.where)}</span><span class="meta">By ${esc(e.host)} · <b style="color:var(--ink)">${esc(e.price)}</b></span>
    <div class="row" style="margin-top:4px">${going(e)?`<button class="btn" data-join="${esc(evKey(e))}">✓ Going</button>`:`<button class="btn ghost" data-join="${esc(evKey(e))}">I'm going</button>`}<button class="btn ghost" data-gym="${e.gym}">See the gym</button></div></div></div>`}).join('');
 }
 const going=e=>!!ME&&(ME.going||[]).includes(evKey(e));
@@ -632,10 +638,10 @@ function renderMe(){
   const R=recommend(ME);
   $('recNote').textContent='Based on what you want, your budget and where you are.';
   $('recs').innerHTML=R.map(({g,k,why})=>`<button class="card" data-id="${g.id}">
-     <div class="top"><div><h3>${esc(g.name)}</h3><div class="meta">${g.area} · ${k.toFixed(1)} km · ★ ${rating(g).r}</div></div><div class="price">${priceTag(g)}</div></div>
+     <div class="top"><div><h3>${esc(g.name)}${realTag(g)}</h3><div class="meta">${g.area} · ${k.toFixed(1)} km · ★ ${rating(g).r}</div></div><div class="price">${priceTag(g)}</div></div>
      <div class="why">${why.map(esc).join(' · ')}</div></button>`).join('');
   const sv=G.filter(g=>(ME.saved||[]).includes(g.id));
-  $('saved').innerHTML=sv.length?sv.map(g=>`<button class="card" data-id="${g.id}"><div class="top"><h3>${esc(g.name)}</h3><div class="price">${priceTag(g)}</div></div><div class="meta">${g.area}${known(g.d)?' · Day pass GHS '+g.d:''}</div></button>`).join(''):'<span class="muted">Tap ♡ Save on a gym page to keep it here.</span>';
+  $('saved').innerHTML=sv.length?sv.map(g=>`<button class="card" data-id="${g.id}"><div class="top"><h3>${esc(g.name)}${realTag(g)}</h3><div class="price">${priceTag(g)}</div></div><div class="meta">${g.area}${known(g.d)?' · Day pass GHS '+g.d:''}</div></button>`).join(''):'<span class="muted">Tap ♡ Save on a gym page to keep it here.</span>';
   const evs=EV.filter(going);
   const suggest=EV.filter(e=>!going(e)&&(EVG[e.gym]||[]).some(x=>(ME.goals||[]).includes(x)));
   $('myEvents').innerHTML=(evs.length?evs.map(e=>`<div class="meta"><b style="color:var(--ink)">${new Date(e.d).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}</b> · ${esc(e.t)} · ${esc(e.where)}</div>`).join(''):'<span class="muted">No events yet.</span>')
@@ -685,7 +691,7 @@ $('q').addEventListener('input',()=>{
   if(t.length<2){box.hidden=true;return}
   const regs=Object.keys(REGIONS).filter(r=>r.toLowerCase().includes(t)||REGIONS[r].cap.toLowerCase().includes(t)).map(r=>`<button type="button" class="qi" data-go-r="${esc(r)}"><b>${esc(r)}</b><span class="meta">Region · ${cntR(r)} gyms</span></button>`);
   const ars=Object.keys(AREAS).filter(a=>a.toLowerCase().includes(t)).map(a=>`<button type="button" class="qi" data-go-r="${esc(AREA_R[a])}" data-go-a="${esc(a)}"><b>${esc(a)}</b><span class="meta">${esc(AREA_R[a])} · ${cntA(a)} gyms</span></button>`);
-  const gs=G.filter(g=>g.name.toLowerCase().includes(t)).map(g=>`<button type="button" class="qi" data-gym-id="${g.id}"><b>${esc(g.name)}</b><span class="meta">Gym · ${esc(g.area)}</span></button>`);
+  const gs=G.filter(g=>g.name.toLowerCase().includes(t)).map(g=>`<button type="button" class="qi" data-gym-id="${g.id}"><b>${esc(g.name)}</b><span class="meta">${g.real?'Gym':'Sample gym'} · ${esc(g.area)}</span></button>`);
   const all=[...regs,...ars,...gs].slice(0,8);
   box.innerHTML=all.length?all.join(''):'<span class="muted">Nothing found. Try a town, like Kumasi or Tema.</span>';box.hidden=false;
 });
