@@ -235,7 +235,7 @@ div.f{display:grid;gap:4px} div.f>span:first-child{font-size:12px;color:var(--mu
 
   <!-- EVENTS -->
   <section id="v-events" class="panel" hidden>
-    <h2>Fitness events in Accra</h2>
+    <h2>Fitness events around Accra</h2>
     <p class="muted" style="margin:0">Hikes, bootcamps and open days from gyms and fitness groups.</p>
     <div class="smpnote"><b>These events are samples, not real.</b> They show how events will look. Real events will be added with the gyms.</div>
     <div class="list" id="events"></div>
@@ -292,7 +292,7 @@ div.f{display:grid;gap:4px} div.f>span:first-child{font-size:12px;color:var(--mu
   <section id="v-owners" class="app" hidden>
     <div class="panel">
       <h2>Bring new members to your gym</h2>
-      <p style="margin:0">People in Accra cannot find gyms because the map pin is often wrong and prices are not online. FitConnect shows your <b>prices, facilities, opening hours and real directions</b>, and sends people straight to your WhatsApp.</p>
+      <p style="margin:0">People in Ghana cannot find gyms because the map pin is often wrong and prices are not online. FitConnect shows your <b>prices, facilities, opening hours and real directions</b>, and sends people straight to your WhatsApp.</p>
       <div class="steps">
         <div class="step"><b>1. We visit</b><span class="muted">We check your location, take photos of the entrance and the floor, and write the directions from a landmark.</span></div>
         <div class="step"><b>2. We set up your address</b><span class="muted">No GhanaPostGPS address or Google Maps listing yet? We set them up with you on the spot, on our laptop – so people can find you everywhere, not only here.</span></div>
@@ -342,14 +342,15 @@ div.f{display:grid;gap:4px} div.f>span:first-child{font-size:12px;color:var(--mu
 <script>
 (function(){
 /* ---------- Places: 16 regions of Ghana -> area groups -> areas (approx. centre points) ---------- */
-// c = map point (regional capital), cap = capital, lab = where the name sits on the Ghana map
+// c = map point (regional capital), cap = capital, lab = where the name sits on the Ghana map.
+// All points checked against OpenStreetMap on 2026-11-24 (each place is inside its region and inside Ghana).
 const REGIONS={
- "Greater Accra":{c:[5.603,-0.187],cap:"Accra",lab:"r"},
+ "Greater Accra":{c:[5.557,-0.201],cap:"Accra",lab:"r"},
  "Central":{c:[5.106,-1.247],cap:"Cape Coast",lab:"b"},
- "Western":{c:[4.899,-1.760],cap:"Sekondi-Takoradi",lab:"l"},
+ "Western":{c:[4.887,-1.752],cap:"Sekondi-Takoradi",lab:"l"},
  "Eastern":{c:[6.094,-0.259],cap:"Koforidua",lab:"l"},
- "Volta":{c:[6.601,0.470],cap:"Ho",lab:"r"},
- "Ashanti":{c:[6.692,-1.623],cap:"Kumasi",lab:"r"},
+ "Volta":{c:[6.613,0.469],cap:"Ho",lab:"r"},
+ "Ashanti":{c:[6.699,-1.623],cap:"Kumasi",lab:"r"},
  "Western North":{c:[6.210,-2.488],cap:"Sefwi Wiawso",lab:"r"},
  "Ahafo":{c:[6.804,-2.517],cap:"Goaso",lab:"r"},
  "Bono":{c:[7.339,-2.327],cap:"Sunyani",lab:"l"},
@@ -365,16 +366,16 @@ const ZONES=[["South",["Greater Accra","Central","Western","Eastern","Volta"]],[
 const AREA_TREE={
  "Greater Accra":[
   ["Airport, Osu & Cantonments",[["Airport Residential",5.605,-0.180],["Osu",5.556,-0.182],["Labone",5.566,-0.170],["Cantonments",5.578,-0.168]]],
-  ["East Legon, Madina & Adenta",[["East Legon",5.636,-0.158],["Madina",5.682,-0.166],["Adenta",5.706,-0.158],["Haatso",5.668,-0.196],["Spintex",5.632,-0.112]]],
-  ["Achimota, Dome & Pokuase",[["Achimota",5.620,-0.226],["Tesano",5.598,-0.232],["Dome",5.651,-0.236],["Lapaz",5.607,-0.251],["Awoshie–Pokuase",5.672,-0.294]]],
+  ["East Legon, Madina & Adenta",[["East Legon",5.636,-0.158],["Madina",5.682,-0.166],["Adenta",5.706,-0.158],["Haatso",5.671,-0.203],["Spintex",5.632,-0.112]]],
+  ["Achimota, Dome & Pokuase",[["Achimota",5.620,-0.226],["Tesano",5.598,-0.232],["Dome",5.651,-0.236],["Lapaz",5.607,-0.251],["Pokuase & Amamoley",5.676,-0.291]]],
   ["West Accra",[["Dansoman",5.545,-0.264],["Kaneshie",5.567,-0.236]]],
-  ["Tema & Ashaiman",[["Tema",5.669,-0.017],["Ashaiman",5.694,-0.034],["Sakumono",5.620,-0.055]]]],
- "Ashanti":[["Kumasi",[["Adum",6.692,-1.623],["Bantama",6.703,-1.636],["Asokwa",6.665,-1.610],["Ahodwo",6.664,-1.632],["KNUST & Ayeduase",6.674,-1.567]]],["Other towns",[["Ejisu",6.723,-1.468],["Obuasi",6.206,-1.665]]]],
- "Central":[["",[["Cape Coast",5.106,-1.247],["Kasoa",5.534,-0.417],["Winneba",5.351,-0.623]]]],
- "Western":[["",[["Takoradi",4.899,-1.760],["Tarkwa",5.300,-1.996]]]],
+  ["Tema & Ashaiman",[["Tema",5.660,-0.010],["Ashaiman",5.694,-0.034],["Sakumono",5.620,-0.055]]]],
+ "Ashanti":[["Kumasi",[["Adum",6.692,-1.623],["Bantama",6.703,-1.636],["Asokwa",6.674,-1.603],["Ahodwo",6.657,-1.620],["KNUST & Ayeduase",6.679,-1.575]]],["Other towns",[["Ejisu",6.723,-1.468],["Obuasi",6.212,-1.689]]]],
+ "Central":[["",[["Cape Coast",5.106,-1.247],["Kasoa",5.533,-0.437],["Winneba",5.351,-0.623]]]],
+ "Western":[["",[["Takoradi",4.887,-1.752],["Tarkwa",5.311,-1.992]]]],
  "Western North":[["",[["Sefwi Wiawso",6.210,-2.488]]]],
  "Eastern":[["",[["Koforidua",6.094,-0.259],["Aburi",5.848,-0.175],["Nkawkaw",6.551,-0.766]]]],
- "Volta":[["",[["Ho",6.601,0.470],["Hohoe",7.152,0.473],["Keta",5.918,0.989]]]],
+ "Volta":[["",[["Ho",6.613,0.469],["Hohoe",7.152,0.473],["Keta",5.918,0.989]]]],
  "Oti":[["",[["Dambai",8.070,0.179]]]],
  "Bono":[["",[["Sunyani",7.339,-2.327]]]],
  "Bono East":[["",[["Techiman",7.586,-1.938],["Kintampo",8.056,-1.731]]]],
@@ -389,23 +390,23 @@ const AREAS={},AREA_R={};
 Object.entries(AREA_TREE).forEach(([r,gs])=>gs.forEach(([,list])=>list.forEach(([a,la,lo])=>{AREAS[a]=[la,lo];AREA_R[a]=r})));
 const FAC={ac:"Air conditioning",shower:"Showers",parking:"Parking",trainer:"Personal trainer",classes:"Group classes",women:"Women-only hours",pool:"Pool",open24:"Open late (after 10pm)"};
 const G=[
- {id:1,name:"Trailhead Fitness",area:"East Legon",dx:.004,dy:-.003,m:450,d:60,q:1250,hours:"Mon–Fri 5:00–22:00 · Sat 6:00–18:00 · Sun 7:00–14:00",f:["ac","shower","parking","trainer","classes"],v:true,r:4.7,n:86,land:"Off the A&C Mall road. Turn at the blue Total station, 3rd building on the left, white gate with green sign.",partner:true},
+ {id:1,name:"Trailhead Fitness",area:"East Legon",dx:.004,dy:-.003,m:450,d:60,q:1250,hours:"Mon–Fri 5:00–22:00 · Sat 6:00–18:00 · Sun 7:00–14:00",f:["ac","shower","parking","trainer","classes"],v:true,r:4.7,n:86,land:"Off the A&C Mall road. Turn at the TotalEnergies station, 3rd building on the left, white gate with green sign.",partner:true},
  {id:2,name:"Ironside Strength Club",area:"Spintex",dx:-.006,dy:.004,m:350,d:50,q:950,hours:"Mon–Sat 5:00–21:00",f:["shower","parking","trainer"],v:true,r:4.5,n:41,land:"Spintex Road, opposite the Shell station near Coca-Cola roundabout. Upstairs, above the pharmacy."},
  {id:3,name:"Osu Box & Burn",area:"Osu",dx:.002,dy:.002,m:600,d:80,q:1650,hours:"Mon–Fri 6:00–21:00 · Sat 8:00–14:00",f:["ac","shower","classes","women"],v:true,r:4.8,n:63,land:"Oxford Street, behind the KFC. Black door between the phone shop and the bank."},
  {id:4,name:"Madina Community Gym",area:"Madina",dx:-.003,dy:-.004,m:150,d:20,q:400,hours:"Mon–Sat 5:00–20:00",f:["trainer"],v:false,r:4.2,n:19,land:"Near Madina Zongo Junction, behind the lorry station. Ask for 'the gym by the church'."},
  {id:5,name:"Skyline Wellness Club",area:"Airport Residential",dx:.002,dy:-.002,m:1100,d:150,q:3000,hours:"Every day 5:00–23:00",f:["ac","shower","parking","trainer","classes","pool","open24"],v:true,r:4.6,n:212,land:"Liberation Road, inside the office tower with the glass front. Car park entrance on the side street, 4th floor."},
  {id:6,name:"Tesano Power House",area:"Tesano",dx:.003,dy:.003,m:250,d:30,q:700,hours:"Mon–Sat 5:30–21:00",f:["shower","trainer"],v:true,r:4.3,n:27,land:"Tesano, next to the police station. Yellow building, ground floor at the back."},
  {id:7,name:"Adenta Fit Hub",area:"Adenta",dx:-.004,dy:.003,m:300,d:40,q:850,hours:"Mon–Fri 5:00–21:00 · Sat 6:00–16:00",f:["ac","parking","classes","women"],v:false,r:4.4,n:12,land:"Adenta Barrier, behind the Melcom. Follow the sign 'Fit Hub' from the main road."},
- {id:8,name:"Labone Pilates Studio",area:"Labone",dx:.001,dy:-.003,m:900,d:120,q:2500,hours:"Mon–Sat 7:00–20:00 (classes only)",f:["ac","shower","classes","women"],v:true,r:4.9,n:48,land:"Labone, Fifth Lane. Grey house with a wooden gate, studio upstairs."},
- {id:9,name:"Dansoman Keep Fit Centre",area:"Dansoman",dx:-.002,dy:.002,m:120,d:15,q:330,hours:"Every day 5:00–19:00",f:["classes"],v:false,r:4.1,n:9,land:"Dansoman Roundabout, behind the Star Oil station. Open-air space with a red roof."},
- {id:10,name:"Haatso Muscle Lab",area:"Haatso",dx:.003,dy:-.002,m:280,d:35,q:780,hours:"Mon–Sat 5:00–22:00",f:["shower","trainer","open24"],v:true,r:4.5,n:34,land:"Haatso–Atomic road, opposite the Goil station. Above the barbering shop."},
- {id:11,name:"Achimota Fitness Point",area:"Achimota",dx:-.003,dy:-.003,m:200,d:25,q:550,hours:"Mon–Sat 5:00–20:00",f:["trainer","parking"],v:false,r:4.0,n:15,land:"Achimota, near the mall car park exit. Behind the church, green wall."},
- {id:12,name:"Cantonments Athletic Club",area:"Cantonments",dx:.004,dy:.002,m:750,d:100,q:2100,hours:"Mon–Fri 5:30–22:00 · Weekends 7:00–18:00",f:["ac","shower","parking","trainer","classes"],v:true,r:4.6,n:97,land:"Cantonments, 2nd turn after the Ivory Coast embassy. Look for the orange 'CAC' sign."},
+ {id:8,name:"Labone Pilates Studio",area:"Labone",dx:.001,dy:-.003,m:900,d:120,q:2500,hours:"Mon–Sat 7:00–20:00 (classes only)",f:["ac","shower","classes","women"],v:true,r:4.9,n:48,land:"Labone, quiet side street off the main road. Grey house with a wooden gate, studio upstairs."},
+ {id:9,name:"Dansoman Keep Fit Centre",area:"Dansoman",dx:-.002,dy:.002,m:120,d:15,q:330,hours:"Every day 5:00–19:00",f:["classes"],v:false,r:4.1,n:9,land:"Dansoman, behind the Star Oil station on the main road. Open-air space with a red roof."},
+ {id:10,name:"Haatso Muscle Lab",area:"Haatso",dx:.003,dy:-.002,m:280,d:35,q:780,hours:"Mon–Sat 5:00–22:00",f:["shower","trainer"],v:true,r:4.5,n:34,land:"Haatso–Atomic road, opposite the Goil station. Above the barbering shop."},
+ {id:11,name:"Achimota Fitness Point",area:"Achimota",dx:-.003,dy:-.003,m:200,d:25,q:550,hours:"Mon–Sat 5:00–20:00",f:["trainer","parking"],v:false,r:4.0,n:15,land:"Achimota, behind the church. Green wall, gate on the side street."},
+ {id:12,name:"Cantonments Athletic Club",area:"Cantonments",dx:.004,dy:.002,m:750,d:100,q:2100,hours:"Mon–Fri 5:30–22:00 · Weekends 7:00–18:00",f:["ac","shower","parking","trainer","classes"],v:true,r:4.6,n:97,land:"Cantonments, side street off the main road. Look for the orange 'CAC' sign."},
  // Real gym (not a sample). Details from its Google Maps listing, 2026-11-24. Fees not known yet.
- {id:13,name:"Lezo Fitness",area:"Awoshie–Pokuase",lat:5.671934,lng:-0.2937582,m:null,d:null,q:null,hours:"Open 24 hours, every day",f:["open24"],v:false,r:4.2,n:11,land:"On the Awoshie–Pokuase Highway, inside the Goil fuel station (Ayawaso).",real:true,tel:"030 396 6648",plus:"MPC4+QF",src:"https://maps.app.goo.gl/mfuWvs6AbvWQNr3HA"}
+ {id:13,name:"Lezo Fitness",area:"Pokuase & Amamoley",lat:5.671934,lng:-0.2937582,m:null,d:null,q:null,hours:"Open 24 hours, every day",f:["open24"],v:false,r:4.2,n:11,land:"Amamoley, on the Awoshie–Pokuase Highway, inside the Goil fuel station (Ayawaso).",real:true,tel:"030 396 6648",plus:"MPC4+QF",src:"https://maps.app.goo.gl/mfuWvs6AbvWQNr3HA"}
 ];
 const EV=[
- {d:"2026-11-29",t:"Saturday Sunrise Hike",where:"Shai Hills · meet at Trailhead Fitness 5:00",host:"Trailhead Fitness",price:"GHS 60 incl. transport",gym:1},
+ {d:"2026-11-28",t:"Saturday Sunrise Hike",where:"Shai Hills · meet at Trailhead Fitness 5:00",host:"Trailhead Fitness",price:"GHS 60 incl. transport",gym:1},
  {d:"2026-11-30",t:"Free Open Day – try any class",where:"Osu Box & Burn",host:"Osu Box & Burn",price:"Free",gym:3},
  {d:"2026-12-06",t:"Beach Bootcamp",where:"Labadi Beach · 6:30",host:"Ironside Strength Club",price:"GHS 30",gym:2},
  {d:"2026-12-13",t:"Aburi Mountain Hike",where:"Aburi · meet at Trailhead Fitness 5:30",host:"Trailhead Fitness",price:"GHS 80 incl. transport",gym:1},
@@ -482,8 +483,8 @@ function renderCrumbs(){
   if(S.area)c.push(`<b>${esc(S.area)}</b>`);
   $('crumbs').innerHTML=c.join('<span class="sep" aria-hidden="true">›</span>');
 }
-// Ghana outline (simplified, lon/lat) and the region bubbles on top
-const GH=[[-3.11,5.09],[-2.70,4.98],[-2.24,4.87],[-2.09,4.74],[-1.95,4.77],[-1.74,4.90],[-1.35,5.08],[-1.06,5.20],[-0.62,5.35],[-0.42,5.48],[-0.20,5.53],[0.0,5.62],[0.11,5.70],[0.63,5.78],[0.99,5.92],[1.20,6.10],[1.05,6.35],[0.75,6.55],[0.65,6.80],[0.55,7.10],[0.60,7.40],[0.65,7.65],[0.52,8.00],[0.40,8.30],[0.50,8.70],[0.45,9.10],[0.35,9.50],[0.25,10.00],[0.35,10.40],[0.05,10.70],[0.0,11.08],[-0.15,11.13],[-0.55,11.0],[-0.95,11.0],[-1.40,11.0],[-1.95,11.0],[-2.40,11.0],[-2.83,11.0],[-2.93,10.70],[-2.80,10.20],[-2.85,9.70],[-2.70,9.40],[-2.60,9.00],[-2.80,8.30],[-2.95,7.90],[-3.05,7.30],[-3.25,6.80],[-3.20,6.30],[-3.00,5.80],[-2.80,5.40]];
+// Ghana outline (lon/lat). Land borders: OpenStreetMap, simplified. Coast: through the real coastal towns (Aflao to Half Assini).
+const GH=[[-3.11,5.12],[-2.74,5.12],[-2.79,5.29],[-2.72,5.39],[-2.78,5.62],[-2.86,5.66],[-2.93,5.62],[-2.95,5.72],[-3.03,5.71],[-3.02,5.86],[-3.26,6.62],[-3.21,6.73],[-3.23,6.82],[-2.95,7.24],[-2.92,7.61],[-2.78,7.95],[-2.75,7.92],[-2.68,8.02],[-2.6,8.03],[-2.63,8.12],[-2.49,8.21],[-2.59,8.79],[-2.63,8.79],[-2.6,8.83],[-2.62,8.92],[-2.66,9.02],[-2.78,9.06],[-2.77,9.14],[-2.66,9.26],[-2.72,9.31],[-2.68,9.37],[-2.68,9.49],[-2.77,9.57],[-2.75,9.64],[-2.79,9.7],[-2.73,9.83],[-2.79,10.07],[-2.76,10.25],[-2.85,10.32],[-2.77,10.42],[-2.87,10.45],[-2.94,10.62],[-2.91,10.69],[-2.94,10.72],[-2.82,10.92],[-2.83,11.01],[-1.75,10.97],[-1.43,11.02],[-0.92,11],[-0.89,10.96],[-0.87,10.97],[-0.86,11],[-0.81,11.01],[-0.65,10.99],[-0.62,10.91],[-0.57,10.99],[-0.44,11.03],[-0.43,11.11],[-0.37,11.12],[-0.36,11.07],[-0.27,11.12],[-0.28,11.17],[-0.1,11.09],[0,11.11],[0.03,10.98],[-0.09,10.71],[-0.06,10.63],[0.14,10.53],[0.19,10.4],[0.29,10.42],[0.32,10.31],[0.4,10.31],[0.35,10.1],[0.41,10.03],[0.36,10.03],[0.39,9.94],[0.32,9.73],[0.38,9.59],[0.24,9.57],[0.24,9.52],[0.31,9.51],[0.23,9.46],[0.28,9.43],[0.36,9.5],[0.45,9.5],[0.57,9.41],[0.46,9.04],[0.53,8.88],[0.49,8.8],[0.38,8.79],[0.37,8.75],[0.47,8.6],[0.65,8.49],[0.73,8.34],[0.73,8.29],[0.59,8.2],[0.63,7.7],[0.52,7.59],[0.52,7.46],[0.57,7.39],[0.64,7.4],[0.66,7.32],[0.6,7.02],[0.52,6.97],[0.57,6.92],[0.53,6.83],[0.65,6.74],[0.66,6.61],[0.74,6.58],[0.71,6.53],[0.75,6.45],[0.89,6.34],[1,6.34],[1.08,6.17],[1.2,6.17],[1.19,6.095],[0.99,5.895],[0.63,5.765],[0.11,5.695],[-0.01,5.605],[-0.14,5.545],[-0.21,5.515],[-0.37,5.475],[-0.49,5.375],[-0.62,5.315],[-0.74,5.265],[-1.06,5.195],[-1.245,5.085],[-1.35,5.065],[-1.75,4.865],[-2.09,4.725],[-2.24,4.855],[-2.88,5.035]];
 const GX=lo=>((lo+3.4)*100).toFixed(1), GY=la=>((11.3-la)*100).toFixed(1);
 function renderGhana(){
   const bub=Object.entries(REGIONS).map(([r,o])=>{
