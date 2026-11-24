@@ -863,6 +863,11 @@ $('whoBtn').addEventListener('click',()=>show('me'));
 $('v-me').addEventListener('click',e=>{const c=e.target.closest('.card[data-id]');if(c)openGym(c.dataset.id)});
 
 renderAll();
+// Links: #/region/area/gym-13 opens that gym; #/owners opens the page for gym owners
+(function openFromLink(){
+  const m=location.hash.match(/gym-(\d+)/);if(m&&G.find(g=>g.id==m[1]))openGym(+m[1]);
+  if(/^#\/?owners/.test(location.hash))show('owners');
+})();
 initStore();
 })();
 </script>
