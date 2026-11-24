@@ -1,5 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body>
-<title>FitConnect Gym Finder</title>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body><title>FitConnect Gym Finder</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
 <style>
@@ -58,6 +57,7 @@ input,select,textarea{border:1px solid var(--line);background:var(--panel);color
 .meta{color:var(--muted);font-size:13px}
 .tags{display:flex;flex-wrap:wrap;gap:5px}
 .tag{font-size:12px;padding:2px 8px;border-radius:999px;background:var(--map);color:var(--ink)}
+.real{font-size:11px;font-weight:700;color:#fff;background:var(--accent);padding:2px 7px;border-radius:999px;vertical-align:middle;white-space:nowrap}
 .ver{font-size:12px;font-weight:600;color:var(--green);background:var(--green-soft);padding:2px 8px;border-radius:999px;white-space:nowrap}
 .unv{font-size:12px;font-weight:600;color:var(--muted);background:var(--map);padding:2px 8px;border-radius:999px;white-space:nowrap}
 .landmark{font-size:13px;background:var(--accent-soft);color:var(--ink);border-radius:8px;padding:6px 9px}
@@ -241,7 +241,7 @@ form.reg .full{grid-column:1/-1}
     </div>
   </section>
 
-  <p class="foot">Beta for showing gym owners and users. All gyms, prices and events here are samples, not real listings.</p>
+  <p class="foot">Beta for showing gym owners and users. Gyms marked “Real gym” are real (details from Google Maps). All other gyms, prices, reviews and events are samples, not real listings.</p>
 </div>
 
 <div class="sheetbg" id="sheetBg" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
@@ -249,7 +249,7 @@ form.reg .full{grid-column:1/-1}
 
 <script>
 (function(){
-const AREAS={"East Legon":[5.636,-0.158],"Airport Residential":[5.605,-0.180],"Osu":[5.556,-0.182],"Labone":[5.566,-0.170],"Cantonments":[5.578,-0.168],"Spintex":[5.632,-0.112],"Madina":[5.682,-0.166],"Adenta":[5.706,-0.158],"Haatso":[5.668,-0.196],"Achimota":[5.620,-0.226],"Tesano":[5.598,-0.232],"Dansoman":[5.545,-0.264]};
+const AREAS={"East Legon":[5.636,-0.158],"Airport Residential":[5.605,-0.180],"Osu":[5.556,-0.182],"Labone":[5.566,-0.170],"Cantonments":[5.578,-0.168],"Spintex":[5.632,-0.112],"Madina":[5.682,-0.166],"Adenta":[5.706,-0.158],"Haatso":[5.668,-0.196],"Achimota":[5.620,-0.226],"Tesano":[5.598,-0.232],"Dansoman":[5.545,-0.264],"Awoshie–Pokuase":[5.672,-0.294]};
 const FAC={ac:"Air conditioning",shower:"Showers",parking:"Parking",trainer:"Personal trainer",classes:"Group classes",women:"Women-only hours",pool:"Pool",open24:"Open late (after 10pm)"};
 const G=[
  {id:1,name:"Trailhead Fitness",area:"East Legon",dx:.004,dy:-.003,m:450,d:60,q:1250,hours:"Mon–Fri 5:00–22:00 · Sat 6:00–18:00 · Sun 7:00–14:00",f:["ac","shower","parking","trainer","classes"],v:true,r:4.7,n:86,land:"Off the A&C Mall road. Turn at the blue Total station, 3rd building on the left, white gate with green sign.",partner:true},
@@ -263,7 +263,9 @@ const G=[
  {id:9,name:"Dansoman Keep Fit Centre",area:"Dansoman",dx:-.002,dy:.002,m:120,d:15,q:330,hours:"Every day 5:00–19:00",f:["classes"],v:false,r:4.1,n:9,land:"Dansoman Roundabout, behind the Star Oil station. Open-air space with a red roof."},
  {id:10,name:"Haatso Muscle Lab",area:"Haatso",dx:.003,dy:-.002,m:280,d:35,q:780,hours:"Mon–Sat 5:00–22:00",f:["shower","trainer","open24"],v:true,r:4.5,n:34,land:"Haatso–Atomic road, opposite the Goil station. Above the barbering shop."},
  {id:11,name:"Achimota Fitness Point",area:"Achimota",dx:-.003,dy:-.003,m:200,d:25,q:550,hours:"Mon–Sat 5:00–20:00",f:["trainer","parking"],v:false,r:4.0,n:15,land:"Achimota, near the mall car park exit. Behind the church, green wall."},
- {id:12,name:"Cantonments Athletic Club",area:"Cantonments",dx:.004,dy:.002,m:750,d:100,q:2100,hours:"Mon–Fri 5:30–22:00 · Weekends 7:00–18:00",f:["ac","shower","parking","trainer","classes"],v:true,r:4.6,n:97,land:"Cantonments, 2nd turn after the Ivory Coast embassy. Look for the orange 'CAC' sign."}
+ {id:12,name:"Cantonments Athletic Club",area:"Cantonments",dx:.004,dy:.002,m:750,d:100,q:2100,hours:"Mon–Fri 5:30–22:00 · Weekends 7:00–18:00",f:["ac","shower","parking","trainer","classes"],v:true,r:4.6,n:97,land:"Cantonments, 2nd turn after the Ivory Coast embassy. Look for the orange 'CAC' sign."},
+ // Real gym (not a sample). Details from its Google Maps listing, 2026-11-24. Fees not known yet.
+ {id:13,name:"Lezo Fitness",area:"Awoshie–Pokuase",lat:5.671934,lng:-0.2937582,m:null,d:null,q:null,hours:"Open 24 hours, every day",f:["open24"],v:false,r:4.2,n:11,land:"On the Awoshie–Pokuase Highway, inside the Goil fuel station (Ayawaso).",real:true,tel:"030 396 6648",plus:"MPC4+QF",src:"https://maps.app.goo.gl/mfuWvs6AbvWQNr3HA"}
 ];
 const EV=[
  {d:"2026-11-29",t:"Saturday Sunrise Hike",where:"Shai Hills · meet at Trailhead Fitness 5:00",host:"Trailhead Fitness",price:"GHS 60 incl. transport",gym:1},
@@ -287,7 +289,11 @@ const SAMPLE_REV=[
  {gym:4,stars:4,name:"Kojo",text:"Cheap and close to the station. No air conditioning.",at:Date.parse("2026-10-30"),sample:true}
 ];
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const pos=g=>[AREAS[g.area][0]+g.dy,AREAS[g.area][1]+g.dx];
+const pos=g=>g.lat!=null?[g.lat,g.lng]:[AREAS[g.area][0]+g.dy,AREAS[g.area][1]+g.dx];
+const known=v=>v!=null;
+const money=v=>known(v)?'GHS '+v:'Ask the gym';
+const priceTag=g=>known(g.m)?`GHS ${g.m}<small> /month</small>`:'<small>Fee: ask the gym</small>';
+const realTag=g=>g.real?' <span class="real">Real gym</span>':'';
 function km(a,b){const R=6371,t=x=>x*Math.PI/180,dl=t(b[0]-a[0]),dn=t(b[1]-a[1]);const h=Math.sin(dl/2)**2+Math.cos(t(a[0]))*Math.cos(t(b[0]))*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(h))}
 const S={area:"East Legon",max:99999,sort:"dist",f:new Set()};
 try{const a=localStorage.getItem('fc-area');if(a&&AREAS[a])S.area=a}catch(e){}
@@ -299,21 +305,22 @@ document.getElementById('facets').innerHTML=['ac','shower','parking','trainer','
 
 function filtered(){
   const me=AREAS[S.area];
-  let L=G.map(g=>({...g,km:km(me,pos(g))})).filter(g=>g.m<=S.max&&[...S.f].every(k=>k==='dayPass'?g.d<50:g.f.includes(k)));
-  L.sort((a,b)=>S.sort==='price'?a.m-b.m:S.sort==='rating'?b.r-a.r:a.km-b.km);
+  let L=G.map(g=>({...g,km:km(me,pos(g))})).filter(g=>(!known(g.m)||g.m<=S.max)&&[...S.f].every(k=>k==='dayPass'?known(g.d)&&g.d<50:g.f.includes(k)));
+  const pm=g=>known(g.m)?g.m:1e9;
+  L.sort((a,b)=>S.sort==='price'?pm(a)-pm(b):S.sort==='rating'?b.r-a.r:a.km-b.km);
   return L;
 }
 function renderFind(){
   const L=filtered(),ids=new Set(L.map(g=>g.id));
   document.getElementById('results').innerHTML=(L.length?'':`<div class="panel"><b>No gym matches all your choices.</b><span class="muted">Remove a filter or raise the monthly fee.</span></div>`)+L.map(g=>`
    <button class="card" data-id="${g.id}">
-     <div class="top"><div><h3>${esc(g.name)}${ME&&(ME.saved||[]).includes(g.id)?' <span style="color:var(--accent)" aria-label="saved">♥</span>':''}</h3><div class="meta">${g.area} · ${g.km.toFixed(1)} km · ★ ${rating(g).r} (${rating(g).n})</div></div>
-     <div class="price">GHS ${g.m}<small> /month</small></div></div>
-     <div class="row">${g.v?'<span class="ver">✓ Location checked</span>':'<span class="unv">Not checked yet</span>'}<span class="meta">Day pass GHS ${g.d}</span></div>
+     <div class="top"><div><h3>${esc(g.name)}${realTag(g)}${ME&&(ME.saved||[]).includes(g.id)?' <span style="color:var(--accent)" aria-label="saved">♥</span>':''}</h3><div class="meta">${g.area} · ${g.km.toFixed(1)} km · ★ ${rating(g).r} (${rating(g).n})</div></div>
+     <div class="price">${priceTag(g)}</div></div>
+     <div class="row">${g.v?'<span class="ver">✓ Location checked</span>':'<span class="unv">Not checked yet</span>'}${known(g.d)?`<span class="meta">Day pass GHS ${g.d}</span>`:''}</div>
      <div class="tags">${g.f.slice(0,4).map(k=>`<span class="tag">${FAC[k]}</span>`).join('')}${g.f.length>4?`<span class="tag">+${g.f.length-4}</span>`:''}</div>
    </button>`).join('');
   // map board
-  const lat=[5.53,5.72],lon=[-0.28,-0.09];
+  const lat=[5.53,5.72],lon=[-0.31,-0.09];
   const X=l=>((l-lon[0])/(lon[1]-lon[0])*100).toFixed(2), Y=l=>((lat[1]-l)/(lat[1]-lat[0])*100).toFixed(2);
   const me=AREAS[S.area];
   let svg=`<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
@@ -322,7 +329,7 @@ function renderFind(){
   </svg>`;
   let html=svg+Object.entries(AREAS).map(([a,p])=>`<div style="position:absolute;left:${X(p[1])}%;top:${Y(p[0])}%;transform:translate(-50%,14px);font:600 10px var(--body);color:var(--muted);white-space:nowrap;pointer-events:none">${a}</div>`).join('')
    +`<div class="you" style="left:${X(me[1])}%;top:${Y(me[0])}%" title="You"></div>`
-   +G.map(g=>{const p=pos(g);return `<button class="pin ${ids.has(g.id)?'':'dim'}" data-id="${g.id}" style="left:${X(p[1])}%;top:${Y(p[0])}%" aria-label="${esc(g.name)}"><span>${g.m}</span></button>`}).join('')
+   +G.map(g=>{const p=pos(g);return `<button class="pin ${ids.has(g.id)?'':'dim'}" data-id="${g.id}" style="left:${X(p[1])}%;top:${Y(p[0])}%" aria-label="${esc(g.name)}"><span>${known(g.m)?g.m:'?'}</span></button>`}).join('')
    +`<div style="position:absolute;right:8px;bottom:6px;font:600 10px var(--body);color:var(--muted)">Gulf of Guinea</div>`;
   document.getElementById('map').innerHTML=html;
 }
@@ -393,10 +400,10 @@ function recommend(p){
   return G.map(g=>{
     const k=km(me,pos(g)), hit=(p.goals||[]).filter(x=>g.g.includes(x));
     let s=hit.length*3 - k*0.5;
-    const inBudget=g.m<=(+p.budget||99999); s+=inBudget?2:-6;
+    const inBudget=known(g.m)&&g.m<=(+p.budget||99999); s+=inBudget?2:known(g.m)?-6:0;
     if(p.level==='new'&&g.f.includes('trainer')) s+=1;
     if((p.goals||[]).includes('women')&&!g.f.includes('women')) s-=3;
-    const why=[...hit.map(x=>GOALS[x]), inBudget?'In your budget':'Over your budget', k.toFixed(1)+' km'];
+    const why=[...hit.map(x=>GOALS[x]), inBudget?'In your budget':known(g.m)?'Over your budget':'Fee: ask the gym', k.toFixed(1)+' km'];
     return {g,k,s,why};
   }).sort((a,b)=>b.s-a.s).slice(0,3);
 }
@@ -407,19 +414,19 @@ function openGym(id){
   const p=pos(g), rt=rating(g), revs=gymReviews(g.id), isSaved=!!ME&&(ME.saved||[]).includes(g.id);
   const mineHere=myReviews().find(r=>r.gym==g.id);
   document.getElementById('sheet').innerHTML=`
-   <div class="top"><div><h2>${esc(g.name)}</h2><div class="meta">${g.area} · ${k.toFixed(1)} km from ${S.area} · ★ ${rt.r} (${rt.n} reviews)</div></div><button class="close" data-close>Close</button></div>
-   ${g.v?'<span class="ver" style="justify-self:start">✓ Location and prices checked on site · Nov 2026</span>':'<span class="unv" style="justify-self:start">Not checked yet – details from the gym</span>'}
+   <div class="top"><div><h2>${esc(g.name)}${realTag(g)}</h2><div class="meta">${g.area} · ${k.toFixed(1)} km from ${S.area} · ★ ${rt.r} (${rt.n} reviews${g.real?' on Google':''})</div></div><button class="close" data-close>Close</button></div>
+   ${g.v?'<span class="ver" style="justify-self:start">✓ Location and prices checked on site · Nov 2026</span>':`<span class="unv" style="justify-self:start">${g.real?'Not checked on site yet – details from Google Maps':'Not checked yet – details from the gym'}</span>`}
    <div class="landmark"><b>How to get there:</b> ${esc(g.land)}</div>
-   <div class="gps"><b>GhanaPostGPS:</b> ${g.gps?`<code>${esc(g.gps)}</code><button class="btn ghost" style="padding:3px 10px;font-size:12px" data-copy="${esc(g.gps)}">Copy</button>`:'<span class="muted">added when our team visits</span>'}</div>
-   <table><tr><td>Day pass</td><td>GHS ${g.d}</td></tr><tr><td>1 month</td><td>GHS ${g.m}</td></tr><tr><td>3 months</td><td>GHS ${g.q}</td></tr></table>
+   <div class="gps"><b>GhanaPostGPS:</b> ${g.gps?`<code>${esc(g.gps)}</code><button class="btn ghost" style="padding:3px 10px;font-size:12px" data-copy="${esc(g.gps)}">Copy</button>`:'<span class="muted">added when our team visits</span>'}${g.plus?`<span class="muted">· Plus Code ${esc(g.plus)}</span>`:''}</div>
+   <table><tr><td>Day pass</td><td>${money(g.d)}</td></tr><tr><td>1 month</td><td>${money(g.m)}</td></tr><tr><td>3 months</td><td>${money(g.q)}</td></tr></table>
    <div><h3 style="margin-bottom:6px">Facilities</h3><div class="tags">${g.f.map(x=>`<span class="tag">${FAC[x]}</span>`).join('')}</div></div>
    <div><h3 style="margin-bottom:4px">Opening hours</h3><span>${g.hours}</span></div>
    ${ev.length?`<div><h3 style="margin-bottom:6px">Upcoming events</h3>${ev.map(e=>`<div class="meta">${new Date(e.d).toLocaleDateString('en-GB',{day:'numeric',month:'short'})} · ${esc(e.t)} · ${esc(e.price)}</div>`).join('')}</div>`:''}
-   <div class="row"><button class="btn" data-wa>WhatsApp the gym</button>
+   <div class="row">${g.tel?`<a class="btn" href="tel:+233${g.tel.replace(/\D/g,'').replace(/^0/,'')}">Call ${esc(g.tel)}</a>`:'<button class="btn" data-wa>WhatsApp the gym</button>'}
    <a class="btn ghost" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${p[0].toFixed(5)},${p[1].toFixed(5)}">Directions</a>
    <button class="btn ghost" data-save="${g.id}" aria-pressed="${isSaved}">${isSaved?'♥ Saved':'♡ Save'}</button>
    <button class="btn ghost" data-report>Wrong info?</button></div>
-   <small class="muted">Sample gym for the beta. The WhatsApp button will open a chat with the gym: "Hi, I found you on FitConnect. Can I come for a day pass today?"</small>
+   ${g.real?`<small class="muted">Real gym. Address, hours, phone and rating are from its <a href="${esc(g.src)}" target="_blank" rel="noopener">Google Maps listing</a>. Fees will be added after we talk with the gym.</small>`:`<small class="muted">Sample gym for the beta. The WhatsApp button will open a chat with the gym: "Hi, I found you on FitConnect. Can I come for a day pass today?"</small>`}
    <div style="display:grid;gap:8px">
      <h3>Reviews</h3>
      ${ME?(mineHere?`<div class="note">You reviewed this gym: ${starTxt(mineHere.stars)}. You can change it below.</div>`:'')+`
@@ -466,10 +473,10 @@ function renderMe(){
   const R=recommend(ME);
   $('recNote').textContent='Based on what you want, your budget and where you are.';
   $('recs').innerHTML=R.map(({g,k,why})=>`<button class="card" data-id="${g.id}">
-     <div class="top"><div><h3>${esc(g.name)}</h3><div class="meta">${g.area} · ${k.toFixed(1)} km · ★ ${rating(g).r}</div></div><div class="price">GHS ${g.m}<small> /month</small></div></div>
+     <div class="top"><div><h3>${esc(g.name)}</h3><div class="meta">${g.area} · ${k.toFixed(1)} km · ★ ${rating(g).r}</div></div><div class="price">${priceTag(g)}</div></div>
      <div class="why">${why.map(esc).join(' · ')}</div></button>`).join('');
   const sv=G.filter(g=>(ME.saved||[]).includes(g.id));
-  $('saved').innerHTML=sv.length?sv.map(g=>`<button class="card" data-id="${g.id}"><div class="top"><h3>${esc(g.name)}</h3><div class="price">GHS ${g.m}<small> /month</small></div></div><div class="meta">${g.area} · Day pass GHS ${g.d}</div></button>`).join(''):'<span class="muted">Tap ♡ Save on a gym page to keep it here.</span>';
+  $('saved').innerHTML=sv.length?sv.map(g=>`<button class="card" data-id="${g.id}"><div class="top"><h3>${esc(g.name)}</h3><div class="price">${priceTag(g)}</div></div><div class="meta">${g.area}${known(g.d)?' · Day pass GHS '+g.d:''}</div></button>`).join(''):'<span class="muted">Tap ♡ Save on a gym page to keep it here.</span>';
   const evs=EV.filter(going);
   const suggest=EV.filter(e=>!going(e)&&(EVG[e.gym]||[]).some(x=>(ME.goals||[]).includes(x)));
   $('myEvents').innerHTML=(evs.length?evs.map(e=>`<div class="meta"><b style="color:var(--ink)">${new Date(e.d).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}</b> · ${esc(e.t)} · ${esc(e.where)}</div>`).join(''):'<span class="muted">No events yet.</span>')
